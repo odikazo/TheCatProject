@@ -28,13 +28,14 @@ const app = express();
 
 // Set the view engine to ejs
 app.set('view engine', 'ejs');
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 
 // Index page - Fetch data inside the route
 app.get('/', async function(req, res) {
   try {
     const result = await ApiRequest(); // Fetch API data
     const cat = result[0]; // Extract first cat object
+    console.log(cat);
     res.render('index.ejs', { cat }); // Pass cat object to EJS
   } catch (error) {
     res.status(500).send('Error fetching data');
