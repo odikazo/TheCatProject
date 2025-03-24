@@ -13,3 +13,4 @@ fetch("https://api.thecatapi.com/v1/images/search?size=med&mime_types=jpg&format
   .then(response => response.text())
   .then(result => console.log(result))
   .catch(error => console.lo.g('error', error)); 
+hjiobjiokegbf
