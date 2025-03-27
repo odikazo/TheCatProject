@@ -4,8 +4,20 @@
     <link rel="stylesheet" href="/index.css">
   </head>
   <body>
-    <h1>Hello World</h1>
-    <p><%= cat.breeds[0].name %></p>
-    <img href="<%= cat.url %>">
+    <header>Die Cat Projekt</header>
+    <div class="item">
+      <h2>LEADERBOARD</h2>
+    </div>
+    <main class="item">
+      <img src="<%= cat.url %>" width="<%= cat.width %>" height="<%= cat.height %>">
+    </main>
+    <aside class="item">
+      <h2>INFOS ÜBER KATZE</h2>
+      <ul>
+        <li><span class="category">Rasse</span>: <span class="value"><%= cat.breeds[0].name %></span></li>
+        <li><span class="category">Lebensspanne</span>: <span class="value"><%= cat.breeds[0].life_span %></span></li>
+        <li><span class="category">Rasse</span>: <span class="value"><%= cat.breeds[0].weight[0] %></span></li>
+      </ul>
+    </aside>
   </body>
 </html>
