@@ -1,4 +1,5 @@
 <!doctype html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <html>
   <head>
     <link rel="stylesheet" href="/index.css">
@@ -6,18 +7,24 @@
   <body>
     <header>Die Cat Projekt</header>
     <div class="item">
-      <h2>LEADERBOARD</h2>
+      <h4>LEADERBOARD</h4>
     </div>
     <main class="item">
       <img src="<%= cat.url %>" width="<%= cat.width %>" height="<%= cat.height %>">
     </main>
     <aside class="item">
-      <h2>INFOS ÜBER KATZE</h2>
-      <ul>
-        <li><span class="category">Rasse</span>: <span class="value"><%= cat.breeds[0].name %></span></li>
-        <li><span class="category">Lebensspanne</span>: <span class="value"><%= cat.breeds[0].life_span %></span></li>
-        <li><span class="category">Rasse</span>: <span class="value"><%= cat.breeds[0].weight[0] %></span></li>
-      </ul>
+      <div>
+        <h3>Beschreibung der Rasse (<%= cat.breeds[0].name %>)</h3>
+        <p><%= cat.breeds[0].description %></p>
+      </div>
+      <div>
+        <h6>Weitere Informationen:</h6>
+        <ul>
+          <li>Weitere </li>
+          <li>Gewicht: <%= cat.breeds[0].weight.metric %>kg</li>
+          <li>Alter: <%= cat.breeds[0].life_span %>Jahre</li>
+        </ul>
+      </div>
     </aside>
   </body>
 </html>
