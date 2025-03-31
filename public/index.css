@@ -73,8 +73,15 @@ img {
 }
 
 
-
-
+.like {
+    background-color: green;
+}
+.dislike {
+    background-color: red;
+}
+button {
+    border-radius: 100px;
+}
 
 
 

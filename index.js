@@ -23,19 +23,21 @@ async function ApiRequest() {
 
 // Webserver
 const express = require('express');
-const path = require('path');
 const app = express();
 
 // Set the view engine to ejs
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
+// Use JSON
+app.use(express.json());
+
 // Index page - Fetch data inside the route
 app.get('/', async function(req, res) {
   try {
     const result = await ApiRequest(); // Fetch API data
     const cat = result[0]; // Extract first cat object
-    console.log(cat);
+    // console.log(cat);
     res.render('index.ejs', { cat }); // Pass cat object to EJS
   } catch (error) {
     res.status(500).send('Error fetching data');
@@ -44,7 +46,16 @@ app.get('/', async function(req, res) {
 
 // About page
 app.get('/about', function(req, res) {
-  res.render('pages/about');
+  res.render('test.ejs');
+});
+
+// Like / Dislike API
+app.post('/api', async(req, res) => {
+    const receivedMessage = req.body;
+    console.log(receivedMessage);
+
+    // Send back a response
+    res.json({ received: receivedMessage, status: 'success' });
 });
 
 app.listen(80, () => {

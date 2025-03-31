@@ -11,6 +11,11 @@
     </div>
     <main class="item">
       <img src="<%= cat.url %>" width="<%= cat.width %>" height="<%= cat.height %>">
+      <div class="button-container">
+          <button class="like" onclick="sendMessage('like')">Like</button>
+          <button class="dislike" onclick="sendMessage('dislike')">Dislike</button>
+          <div id="response"></div>
+      </div>
     </main>
     <aside class="item">
       <div>
@@ -26,5 +31,26 @@
         </ul>
       </div>
     </aside>
+    <script>
+        // Function to send "Hello World" via button
+        function sendMessage(message) {
+            fetch('/api', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message, cat: '<%=cat.id %>' })
+            })
+            .then(response => response.json()) // Parse the response as JSON
+            .then(data => {
+                console.log('Success:', data); // Log the server response
+                // document.getElementById('response').innerText = 'Server Response: ' + JSON.stringify(data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                document.getElementById('response').innerText = 'Error: ' + error;
+            });
+        };
+    </script>
   </body>
 </html>
