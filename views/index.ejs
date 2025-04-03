@@ -1,36 +1,47 @@
-<!doctype html>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<html>
-  <head>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/index.css">
-  </head>
-  <body>
-    <header>Die Cat Projekt</header>
-    <div class="item">
-      <h4>LEADERBOARD</h4>
+    <title>Responsive Grid Layout</title>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Die Cat Project - from Tamino and Tobias</h1>
+        </header>
+        <aside class="sidebar">
+            <h3>Leaderboard</h3>
+            <ul>
+                <li>Kaka</li>
+                <li>Pipi</li>
+                <li>Popo</li>
+            </ul>
+        </aside>
+        <main class="main">
+            <img src="<%= cat.url %>" width="<%= cat.width %>" height="<%= cat.height %>">
+        </main>
+        <section class="wide">
+            <h3>Informations about <%= cat.breeds[0].name %></h3>
+            <p><%= cat.breeds[0].description %></p>
+            <h3>Other Informations about <%= cat.breeds[0].name %></h3>
+            <ul>
+                <li>Also known under: <span><%= cat.breeds[0].alt_names %></span></li>
+                <li>Average life span: <span><%= cat.breeds[0].life_span %></span></li>
+                <li>Average weight: <span><%= cat.breeds[0].weight.imperial%></span></li>
+            </ul>
+        </section>
+        <footer class="footer">
+            <div class="button-container">
+                <button class="like" onclick="sendMessage('like')">Like</button>
+                <button class="dislike" onclick="sendMessage('dislike')">Dislike</button>
+            <div id="response"></div>
+          </div>
+        </footer>
+        <div class="bottom">Ausführliche Informationen</div>
+        <footer class="footer-bottom">Copyright, Impressum, etc.</footer>
     </div>
-    <main class="item">
-      <img src="<%= cat.url %>" width="<%= cat.width %>" height="<%= cat.height %>">
-      <div class="button-container">
-          <button class="like" onclick="sendMessage('like')">Like</button>
-          <button class="dislike" onclick="sendMessage('dislike')">Dislike</button>
-          <div id="response"></div>
-      </div>
-    </main>
-    <aside class="item">
-      <div>
-        <h3>Beschreibung der Rasse (<%= cat.breeds[0].name %>)</h3>
-        <p><%= cat.breeds[0].description %></p>
-      </div>
-      <div>
-        <h6>Weitere Informationen:</h6>
-        <ul>
-          <li>Weitere </li>
-          <li>Gewicht: <%= cat.breeds[0].weight.metric %>kg</li>
-          <li>Alter: <%= cat.breeds[0].life_span %>Jahre</li>
-        </ul>
-      </div>
-    </aside>
     <script>
         // Function to send "Hello World" via button
         function sendMessage(message) {
@@ -52,5 +63,5 @@
             });
         };
     </script>
-  </body>
+</body>
 </html>

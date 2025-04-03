@@ -37,7 +37,7 @@ app.get('/', async function(req, res) {
   try {
     const result = await ApiRequest(); // Fetch API data
     const cat = result[0]; // Extract first cat object
-    // console.log(cat);
+    console.log(cat);
     res.render('index.ejs', { cat }); // Pass cat object to EJS
   } catch (error) {
     res.status(500).send('Error fetching data');

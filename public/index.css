@@ -1,181 +1,144 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
-
-/* TEMPLATE TO BE REMOVED
-.roboto {
-  font-family: "Roboto";
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
-  font-variation-settings:
-    "wdth" 100;
-}
-*/
-
-html {
-  background-color: #051321;
-  color: #f0f0f0;
-  font-family: 'Roboto';
-}
-
-  img {
-    width: auto;
-    height: 57vh;
-
-  }
-
-  body {
-    display: grid;
-    /* grid-template-columns: 15% 60% 25%; */
-    gap: 10px; 
-    padding: 20px;
-  }
-
-  .item {
-    background-color: #0a1c2b;
-    padding: 20px;
-    text-align: center;
-    border: 1px solid #ccc;
-  }
-  header {
-    top: 0px;
-    right: 50%;
-    position: absolute;
-    font-size: 1em;
-  }
-  div h2 {
-  font-size: smaller
-    
-}
-@media screen and (min-width: 801px) {
-    body {
-        grid-template-columns: 15% 60% 25% !important;
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
     }
-}
-h3 {
- margin: 0px;
 
-}
-
-h6 {
- font-size: 18px;
-margin: 5px;
-}
-img {
-    width: auto;
-    height: 57vh;
-    display: block;
-    margin: 0 auto;
-  img {
-      max-width: 100%;
-      max-height: 57vh;
-      object-fit: contain;
-  }
-}
-
-
-.like {
-    background-color: green;
-}
-.dislike {
-    background-color: red;
-}
-button {
-    border-radius: 100px;
-}
-
-
-
-
-
-
-/* NEUER CODE:Bis ganz unten auch noch */
-
-
-
-
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Responsive Grid</title>
-    <style>
-        html {
-            background-color: #051321;
-            color: #f0f0f0;
-            font-family: 'Roboto';
-        }
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+         background: rgb(2,0,36);
+        background: linear-gradient(344deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%); 
 
         img {
-            width: auto;
-            height: 57vh;
-            display: block;
-            margin: 0 auto;
-            max-width: 100%;
-            max-height: 57vh;
-            object-fit: contain;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border: 2px solid #f0f0f0; 
+            border-radius: 10px;
         }
 
-        body {
-            display: grid;
-            gap: 10px;
-            padding: 20px;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
 
+    .container {
+        display: grid;
+        gap: 10px;
+        width: 90%;
+        max-width: 1200px;
+        margin-top: 10px;
+    }
+
+
+    /* ---- Layout für große Bildschirme (Desktop) ---- */
+    @media (min-width: 1024px) {
         .container {
-            display: grid;
-            grid-template-columns: 15% 60% 25%;
-            gap: 10px;
-            padding: 20px;
-            min-height: 100vh;
-            align-items: center; /* Zentriert den Inhalt vertikal */
+            grid-template-areas:
+                "header header header"
+                "sidebar main wide"
+                "sidebar footer wide"
+                "bottom bottom bottom"
+                "footer-bottom footer-bottom footer-bottom";
+            grid-template-columns: 200px 1fr 250px;
+            grid-template-rows: auto 1fr auto auto auto;
         }
+    }
 
-        .item {
-            display: flex;
-            justify-content: center; /* Zentriert horizontal */
-            align-items: center; /* Zentriert vertikal */
-            background-color: #0a1c2b;
-            padding: 20px;
-            text-align: center;
-            border: 1px solid #ccc;
+    /* ---- Layout für Tablets ---- */
+    @media (min-width: 768px) and (max-width: 1023px) {
+        .container {
+            grid-template-areas:
+                "header header"
+                "sidebar main"
+                "wide wide"
+                "footer footer"
+                "bottom bottom"
+                "footer-bottom footer-bottom";
+            grid-template-columns: 200px 1fr;
         }
+    }
 
-        header {
-            top: 0px;
-            right: 50%;
-            position: absolute;
-            font-size: 1em;
+    /* ---- Layout für Smartphones ---- */
+    @media (max-width: 767px) {
+        .container {
+            grid-template-areas:
+                "header"
+                "sidebar"
+                "main"
+                "wide"
+                "footer"
+                "bottom"
+                "footer-bottom";
+            grid-template-columns: 1fr;
         }
+    }
 
-        div h2 {
-            font-size: smaller;
-        }
 
-        @media screen and (min-width: 801px) {
-            body {
-                grid-template-columns: 15% 60% 25%;
-            }
-        }
+    .header {
+        grid-area: header;
+        background-color: rgb(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        color: white;
+        text-align: center;
+        padding: 15px;
+        border: 2px solid #f0f0f0; 
+        border-radius: 10px; 
+    }
 
-        h3 {
-            margin: 0px;
-        }
+    .sidebar {
+        grid-area: sidebar;
+        background-color: rgb(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        color: white;
+        padding: 15px;
+        border: 2px solid #f0f0f0; 
+        border-radius: 10px;
+        text-align: center;
+    }
 
-        h6 {
-            font-size: 18px;
-            margin: 5px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="item">Spalte 1</div>
-        <div class="item"><img src="your-image.jpg" alt="Bild"></div>
-        <div class="item">Spalte 3</div>
-    </div>
-</body>
-</html>
+    .main {
+        grid-area: main;
+    }
+
+    .wide {
+        grid-area: wide;
+        background-color: rgb(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        color: white;
+        padding: 15px;
+        border: 2px solid #f0f0f0; 
+        border-radius: 10px; 
+        text-align: center;
+    }
+
+    .footer {
+        grid-area: footer;
+        background-color: rgb(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        color: white;
+        text-align: center;
+        padding: 15px;
+        border: 2px solid #f0f0f0; 
+        border-radius: 10px; 
+    }
+
+    .bottom {
+        grid-area: bottom;
+        background-color: rgb(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        color: white;
+        text-align: center;
+        padding: 15px;
+        border: 2px solid #f0f0f0; 
+        border-radius: 10px; 
+    }
+
+    .footer-bottom {
+        grid-area: footer-bottom;
+        background-color: rgb(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        color: white;
+        text-align: center;
+        padding: 15px;
+        border: 2px solid #f0f0f0; 
+        border-radius: 10px; 
+    }
