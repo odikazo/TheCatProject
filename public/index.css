@@ -1,7 +1,9 @@
     * {
-        margin: 0;
-        padding: 0;
         box-sizing: border-box;
+    }
+
+    html {
+        min-height: 100vh;
     }
 
     body {
@@ -11,14 +13,39 @@
          background: rgb(2,0,36);
         background: linear-gradient(344deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%); 
 
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border: 2px solid #f0f0f0; 
-            border-radius: 10px;
-        }
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border: 2px solid #f0f0f0; 
+        border-radius: 10px;
+    }
 
+    ul li {
+        display: flex;
+        justify-content: space-between;
+        max-width: 400px; /* Or whatever fits your layout */
+        margin-bottom: 8px;
+    }
+
+    ul li div {
+        font-weight: bold;
+        margin-right: 10px;
+        white-space: nowrap;
+    }
+
+    ul li span {
+        text-align: right;
+        color: #aed5ff;
+        margin-left: 6px;
+    }
+
+    ul {
+        width: fit-content;
+        margin: auto;
+        text-align: left;
+        padding: 0;
+    }
 
     .container {
         display: grid;

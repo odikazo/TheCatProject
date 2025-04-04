@@ -131,3 +131,6 @@ dist
 
 # Replit debugger
 .breakpoints
+
+#database
+database.sqlite

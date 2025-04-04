@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1>Die Cat Project - from Tamino and Tobias</h1>
+            <h1>The Cat Project - from Tamino and Tobias</h1>
         </header>
         <aside class="sidebar">
             <h3>Leaderboard</h3>
@@ -20,16 +20,18 @@
             </ul>
         </aside>
         <main class="main">
-            <img src="<%= cat.url %>" width="<%= cat.width %>" height="<%= cat.height %>">
+            <img src="<%= cat.url %>" max-width="<%= cat.width %>" max-height="<%= cat.height %>">
         </main>
         <section class="wide">
             <h3>Informations about <%= cat.breeds[0].name %></h3>
             <p><%= cat.breeds[0].description %></p>
-            <h3>Other Informations about <%= cat.breeds[0].name %></h3>
             <ul>
-                <li>Also known under: <span><%= cat.breeds[0].alt_names %></span></li>
-                <li>Average life span: <span><%= cat.breeds[0].life_span %></span></li>
-                <li>Average weight: <span><%= cat.breeds[0].weight.imperial%></span></li>
+                <% if (cat.breeds[0].alt_names) { %>
+                    <li>Also known under: <span><%= cat.breeds[0].alt_names %></span></li>
+                <% }; %>
+                <li>Life span: <span><%= cat.breeds[0].life_span %></span></li>
+                <li><div>Average weight:</div><span><%= cat.breeds[0].weight.imperial%></span></li>
+                <li>Origin: <span><%= cat.breeds[0].origin %></span></li>
             </ul>
         </section>
         <footer class="footer">
@@ -39,7 +41,33 @@
             <div id="response"></div>
           </div>
         </footer>
-        <div class="bottom">Ausführliche Informationen</div>
+        <div class="bottom">
+            <h3>Stats:</h3>
+            <ul>
+                <li>Indoor:<span><%= cat.breeds[0].indoor %>/5</span></li>
+                <li>Adaptability:<span><%= cat.breeds[0].adaptability %>/5</span></li>
+                <li>Affection level:<span><%= cat.breeds[0].affection_level %>/5</span></li>
+                <li>Child friendly:<span><%= cat.breeds[0].child_friendly %>/5</span></li>
+                <li>Dog friendly:<span><%= cat.breeds[0].dog_friendly %>/5</span></li>
+                <li>Energy level:<span><%= cat.breeds[0].energy_level %>/5</span></li>
+                <li>Grooming:<span><%= cat.breeds[0].grooming %>/5</span></li>
+                <li>Health issues:<span><%= cat.breeds[0].health_issues %>/5</span></li>
+                <li>Intelligence:<span><%= cat.breeds[0].intelligence %>/5</span></li>
+                <li>Shedding level:<span><%= cat.breeds[0].shedding_level %>/5</span></li>
+                <li>Social needs:<span><%= cat.breeds[0].social_needs %>/5</span></li>
+                <li>Stranger friendly:<span><%= cat.breeds[0].stranger_friendly %>/5</span></li>
+                <li>Vocalisation:<span><%= cat.breeds[0].vocalisation %>/5</span></li>
+                <li>Experimental:<span><%= cat.breeds[0].experimental %>/5</span></li>
+                <li>Hairless:<span><%= cat.breeds[0].hairless %>/5</span></li>
+                <li>Natural:<span><%= cat.breeds[0].natural %>/5</span></li>
+                <li>Rare:<span><%= cat.breeds[0].rare %>/5</span></li>
+                <li>Rex:<span><%= cat.breeds[0].rex %>/5</span></li>
+                <li>Suppressed Tail:<span><%= cat.breeds[0].suppressed_tail %>/5</span></li>
+                <li>Short legs:<span><%= cat.breeds[0].short_legs %>/5</span></li>
+                <li>Hypoallergenic:<span><%= cat.breeds[0].hypoallergenic %>/5</span></li>
+
+            </ul>
+        </div>
         <footer class="footer-bottom">Copyright, Impressum, etc.</footer>
     </div>
     <script>

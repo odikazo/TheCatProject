@@ -1,3 +1,36 @@
+const Sequelize = require('sequelize');
+const sequelize = new Sequelize('database', 'user', 'password', {
+  host: 'localhost',
+  dialect: 'sqlite',
+  logging: false,
+  // SQLite only
+  storage: './database.sqlite'
+});
+
+async function syncDatabase() { // Sync all models
+  try { 
+    await sequelize.sync();
+    console.log('Database synchronized successfully.');
+  } catch (error) { 
+    console.error('Error synchronizing Database:', error); 
+  }};
+
+const leaderdb = sequelize.define('Leaderboard_Database', {
+  cat_id: {
+    type: Sequelize.TEXT,
+    allowNull: false
+  },
+  like: {
+    type: Sequelize.BIGINT,
+    allowNull: false
+  }, dislike: {
+    type: Sequelize.BIGINT,
+    allowNull: false
+  }, 
+}, { timestamps: false });
+
+syncDatabase();
+
 // API requests
 const headers = new Headers({
   "Content-Type": "application/json",
@@ -44,15 +77,15 @@ app.get('/', async function(req, res) {
   }
 });
 
-// About page
-app.get('/about', function(req, res) {
-  res.render('test.ejs');
-});
-
 // Like / Dislike API
 app.post('/api', async(req, res) => {
     const receivedMessage = req.body;
     console.log(receivedMessage);
+    await leaderdb.increment(receivedMessage.message, {
+        by: 1,
+        where: {
+          cat_id: receivedMessage.cat
+  }});
 
     // Send back a response
     res.json({ received: receivedMessage, status: 'success' });
