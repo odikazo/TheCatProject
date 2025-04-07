@@ -1,47 +1,105 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en-US">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/index.css">
-    <title>Responsive Grid Layout</title>
+    <link rel="stylesheet" href="/style.css">
+    <title>The Cat Project</title>
+    <style>
+        /* ---- Layout für große Bildschirme (Desktop) ---- */
+        @media (min-width: 1024px) {
+            .container {
+                grid-template-areas:
+                    "header header header header"
+                    "account image image description"
+                    "leaderboard image image description"
+                    "leaderboard buttons buttons description"
+                    "statistics statistics others others"
+                    "footer footer footer footer";
+                grid-template-columns: 250px 0.5fr 0.5fr 250px;
+            }
+        }
+    
+        /* ---- Layout für Tablets ---- */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .container {
+                grid-template-areas:
+                    "header header header"
+                    "account image image"
+                    "leaderboard image image"
+                    "description description description"
+                    "buttons buttons buttons"
+                    "statistics statistics others"
+                    "footer footer footer";
+                grid-template-columns: 0.3fr 0.2fr 0.5fr;
+            }
+        }
+    
+        /* ---- Layout für Smartphones ---- */
+        @media (max-width: 767px) {
+            .container {
+                grid-template-areas:
+                    "header"
+                    "account"
+                    "leaderboard"
+                    "image"
+                    "description"
+                    "buttons"
+                    "statistics"
+                    "others"
+                    "footer";
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <header class="header">
-            <h1>The Cat Project - from Tamino and Tobias</h1>
+            <h1>The Cat Project - by Tamino and Tobias</h1>
         </header>
-        <aside class="sidebar">
+        <section class="account">
+            <% if (userId) { %>
+                <p>Logged in as <b><%= userId %></b></p>
+                <a href="./login">Manage</a>
+            <% } else { %>
+                <p>You aren't logged in yet.</p>
+                <a href="./login">Login</a>
+            <% }; %>
+        </section>
+        <section class="leaderboard">
             <h3>Leaderboard</h3>
             <ul>
                 <li>Kaka</li>
                 <li>Pipi</li>
                 <li>Popo</li>
             </ul>
-        </aside>
-        <main class="main">
+        </section>
+        <main class="image">
             <img src="<%= cat.url %>" max-width="<%= cat.width %>" max-height="<%= cat.height %>">
         </main>
-        <section class="wide">
+        <section class="description">
             <h3>Informations about <%= cat.breeds[0].name %></h3>
             <p><%= cat.breeds[0].description %></p>
             <ul>
                 <% if (cat.breeds[0].alt_names) { %>
                     <li>Also known under: <span><%= cat.breeds[0].alt_names %></span></li>
                 <% }; %>
-                <li>Life span: <span><%= cat.breeds[0].life_span %></span></li>
-                <li><div>Average weight:</div><span><%= cat.breeds[0].weight.imperial%></span></li>
+                <li>Life span: <span><%= cat.breeds[0].life_span %> Years</span></li>
+                <li>Average weight:<span><%= cat.breeds[0].weight.imperial%> kg</span></li>
                 <li>Origin: <span><%= cat.breeds[0].origin %></span></li>
             </ul>
         </section>
-        <footer class="footer">
-            <div class="button-container">
-                <button class="like" onclick="sendMessage('like')">Like</button>
-                <button class="dislike" onclick="sendMessage('dislike')">Dislike</button>
+        <buttons class="buttons">
+            <% if (userId) { %>
+                <button class="like" onclick="sendMessage('like')"><img src="/hallo.png" height="80px" width="auto"></button>
+                <button class="dislike" onclick="sendMessage('dislike')"><img src="/Daumenrunter.webp" height="80px" width="auto"></button>
+            <% } else { %>
+                <p>You can only vote when you're logged in (You only need a username)</p>
+            <% }; %>
             <div id="response"></div>
-          </div>
-        </footer>
-        <div class="bottom">
+        </buttons>
+        <div class="statistics">
             <h3>Stats:</h3>
             <ul>
                 <li>Indoor:<span><%= cat.breeds[0].indoor %>/5</span></li>
@@ -65,25 +123,31 @@
                 <li>Suppressed Tail:<span><%= cat.breeds[0].suppressed_tail %>/5</span></li>
                 <li>Short legs:<span><%= cat.breeds[0].short_legs %>/5</span></li>
                 <li>Hypoallergenic:<span><%= cat.breeds[0].hypoallergenic %>/5</span></li>
-
             </ul>
         </div>
-        <footer class="footer-bottom">Copyright, Impressum, etc.</footer>
+        <div class="others">
+            <h3>More Stuff:</h3>
+            <ul>
+                <li>Likes:<span>UNDEFINED</span></li>
+                <li>Dislikes:<span>UNDEFINED</span></li>
+            </ul>
+        </div>
+        <footer class="footer">This project was made by Tamino and Tobias for school, feel free to reach out on <a  target="_blank" href="https://github.com/odikazo/TheCatProject">GitHub</a> or to see the source code.</footer>
     </div>
     <script>
         // Function to send "Hello World" via button
         function sendMessage(message) {
-            fetch('/api', {
+            fetch(`/api/${message}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ message: message, cat: '<%=cat.id %>' })
+                body: JSON.stringify({ userId: '<%= userId %>', cat: '<%=cat.id %>' })
             })
             .then(response => response.json()) // Parse the response as JSON
             .then(data => {
                 console.log('Success:', data); // Log the server response
-                // document.getElementById('response').innerText = 'Server Response: ' + JSON.stringify(data);
+                document.getElementById('response').innerText = 'Server Response: ' + JSON.stringify(data);
             })
             .catch((error) => {
                 console.error('Error:', error);
