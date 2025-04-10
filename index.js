@@ -1,14 +1,13 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const app = express();
+const cors = require('cors');
 
-// Set the view engine to ejs
-app.set('view engine', 'ejs');
-app.use(express.static('public'));
-// Use JSON
-app.use(express.json());
-// Use Cookie Parser
-app.use(cookieParser());
+app.set('view engine', 'ejs'); // Set the view engine to ejs
+app.use(express.static('public')); // Set the views directory
+app.use(express.json()); // Use JSON
+app.use(cookieParser()); // Use Cookie Parser
+app.use(cors());
 
 
 // API requests
@@ -55,6 +54,11 @@ app.get('/login', function(req, res) {
   };
   res.render('login.ejs', { userId });
 });
+// search
+app.get('/search', function(req, res) {
+  
+  res.render('search.ejs');
+});
 
 
 // Like API
@@ -68,14 +72,24 @@ app.post('/api/like', async(req, res) => {
       "sub_id": req.cookies.userId
     })};
   const vote = await fetch('https://api.thecatapi.com/v1/votes', sendOptions)
-  console.log(vote);
+  //console.log(vote);
   const requestOptions = {
     method: 'GET',
     headers: headers,
     redirect: 'follow'
   }
   const getvotes = await fetch(`https://api.thecatapi.com/v1/votes`, requestOptions)
-  console.log(await getvotes.json());
+  const data = await getvotes.json();
+  console.log(data);
+ 
+  const filteredByImageId = data.filter(item => item.image_id === req.body.cat);
+  const totalWithImageId = filteredByImageId.length;
+
+  const withUsernameSubId = filteredByImageId.filter(item => item.sub_id === req.cookies.userId);
+  const totalWithUsername = withUsernameSubId.length;
+
+  console.log("Total with image_id JFPROfGtQ:", totalWithImageId);
+  console.log("Of those, total with sub_id username:", totalWithUsername);
 
 
 
@@ -93,8 +107,8 @@ app.post('/api/like', async(req, res) => {
 });
 // Dislike API
 app.post('/api/dislike', async(req, res) => {
-  const receivedMessage = req.body;
-  console.log('Received message:', receivedMessage);
+  const receivedMessage = req.body;  console.log('disliked')
+  //console.log('Received message:', receivedMessage);
   res.json({ received: receivedMessage.cat, status: 'success' });
 });
 
@@ -119,8 +133,40 @@ app.post('/api/get/login', async(req, res) => {
   res.json({ user: userId });
 });
 
+// get all avalible breeds
+app.get('/api/breeds', async (req, res) => {
+  try {
+    const response = await fetch('https://api.thecatapi.com/v1/breeds', {
+      headers: { 'x-api-key': API_KEY }
+    });
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Fehler beim Laden der Rassen' });
+  }
+});
+
+// search fo a cat
+app.get('/api/cats', async (req, res) => {
+  const breedId = req.query.breed;
+  const url = breedId
+    ? `https://api.thecatapi.com/v1/images/search?breed_ids=${breedId}&limit=10`
+    : `https://api.thecatapi.com/v1/images/search?has_breeds=1&limit=20`;
+
+  try {
+    const response = await fetch(url, {
+      headers: { 'x-api-key': API_KEY }
+    });
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Fehler beim Laden der Bilder' });
+  }
+});
+
 
 // Webserver listener
 app.listen(80, () => {
   console.log('Server is listening on port 80');
 });
+

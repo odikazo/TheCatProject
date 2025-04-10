@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>🐱 Katzenrassen suchen</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ---- Layout für große Bildschirme (Desktop) ---- */
+    @media (min-width: 1024px) {
+      .container {
+        grid-template-areas:
+          "header header header header"
+          "account buttons buttons description"
+          "leaderboard buttons buttons description"
+          "leaderboard buttons buttons description"
+          "statistics statistics statistics statistics"
+          "footer footer footer footer";
+        grid-template-columns: 250px 0.5fr 0.5fr 250px;
+      }
+    }
+
+    /* ---- Layout für Tablets ---- */
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .container {
+        grid-template-areas:
+          "header header header"
+          "account image image"
+          "leaderboard image image"
+          "description description description"
+          "buttons buttons buttons"
+          "statistics statistics others"
+          "footer footer footer";
+        grid-template-columns: 0.3fr 0.2fr 0.5fr;
+      }
+    }
+
+    /* ---- Layout für Smartphones ---- */
+    @media (max-width: 767px) {
+      .container {
+        grid-template-areas:
+          "header"
+          "account"
+          "leaderboard"
+          "image"
+          "description"
+          "buttons"
+          "statistics"
+          "others"
+          "footer";
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header card" style="grid-area: header;">
+      <h1>🐾 Katzenrassen suchen</h1>
+    </div>
+
+    <div class="account card" style="grid-area: account;">
+      <p>👤 Benutzerbereich (optional)</p>
+    </div>
+
+    <div class="leaderboard card" style="grid-area: leaderboard;">
+      <p>🏆 Beliebteste Katzen</p>
+    </div>
+
+    <div class="image card" style="grid-area: image;" id="imageArea">
+      <p>⬅ Hier erscheinen die Bilder</p>
+    </div>
+
+    <div class="description card" style="grid-area: description;" id="descriptionArea">
+      <p>Beschreibung zur Rasse</p>
+    </div>
+
+    <div class="buttons card" style="grid-area: buttons;">
+      <label for="breedSelect">Rasse auswählen:</label><br>
+      <select id="breedSelect">
+        <option value="">-- Alle Rassen --</option>
+      </select>
+      <button onclick="searchCat()">Anzeigen</button>
+    </div>
+
+    <div class="statistics card" style="grid-area: statistics;">
+      <p>📊 Statistiken (optional)</p>
+    </div>
+
+    <div class="others card" style="grid-area: others;">
+      <p>🧾 Weitere Infos</p>
+    </div>
+
+    <div class="footer card" style="grid-area: footer;">
+      <p>Made with 🐱 + 💙</p>
+    </div>
+  </div>
+
+  <script>
+    async function loadBreeds() {
+      const res = await fetch('http://localhost:3000/api/breeds');
+      const breeds = await res.json();
+
+      const select = document.getElementById('breedSelect');
+      breeds.forEach(breed => {
+        const option = document.createElement('option');
+        option.value = breed.id;
+        option.textContent = breed.name;
+        select.appendChild(option);
+      });
+    }
+
+    async function searchCat() {
+      const breedId = document.getElementById('breedSelect').value;
+      const imageArea = document.getElementById('imageArea');
+      const descriptionArea = document.getElementById('descriptionArea');
+      
+      imageArea.innerHTML = '⏳ Lade Bild...';
+      descriptionArea.innerHTML = '';
+
+      try {
+        const url = breedId
+          ? `http://localhost:3000/api/cats?breed=${breedId}`
+          : `http://localhost:3000/api/cats`;
+
+        const res = await fetch(url);
+        const cats = await res.json();
+
+        const cat = cats.find(c => c.breeds && c.breeds.length > 0);
+        if (!cat) {
+          imageArea.innerHTML = '😿 Keine Katze gefunden.';
+          return;
+        }
+
+        const breed = cat.breeds[0];
+        imageArea.innerHTML = `<img src="${cat.url}" alt="${breed.name}" />`;
+        descriptionArea.innerHTML = `<h2>${breed.name}</h2><p>${breed.description}</p>`;
+      } catch (err) {
+        imageArea.innerHTML = '❌ Fehler beim Laden';
+      }
+    }
+
+    loadBreeds();
+  </script>
+</body>
+</html>
