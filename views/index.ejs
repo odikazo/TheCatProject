@@ -95,8 +95,8 @@
         </section>
         <buttons class="buttons">
             <% if (userId) { %>
-                <button class="like" onclick="sendMessage('like')"><img src="/hallo.png" height="80px" width="auto"></button>
-                <button class="dislike" onclick="sendMessage('dislike')"><img src="/Daumenrunter.webp" height="80px" width="auto"></button>
+                <button class="like" onclick="sendMessage('like')"><img src="/like.png" height="80px" width="auto"></button>
+                <button class="dislike" onclick="sendMessage('dislike')"><img src="/dislike.webp" height="80px" width="auto"></button>
             <% } else { %>
                 <p>You can only vote when you're logged in (You only need a username)</p>
             <% }; %>
@@ -129,6 +129,9 @@
             </ul>
         </div>
         <div class="others">
+            <div id="response"></div> <!-- Will show the result of the like action -->
+            <div id="totalVotes"></div> <!-- Will show the total number of votes for this image -->
+            <div id="userVotes"></div> <!-- Will show the number of votes by the current user -->
             <h3>More Stuff:</h3>
             <ul>
                 <li>Likes:<span>UNDEFINED</span></li>
@@ -137,26 +140,62 @@
         </div>
         <footer class="footer">This project was made by Tamino and Tobias for school, feel free to reach out on <a  target="_blank" href="https://github.com/odikazo/TheCatProject">GitHub</a> or to see the source code.</footer>
     </div>
-    <script>
-        // Function to send "Hello World" via button
-        function sendMessage(message) {
-            fetch(`/api/${message}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ userId: '<%= userId %>', cat: '<%=cat.id %>' })
-            })
-            .then(response => response.json()) // Parse the response as JSON
-            .then(data => {
-                console.log('Success:', data); // Log the server response
-                document.getElementById('response').innerText = 'Server Response: ' + JSON.stringify(data);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                document.getElementById('response').innerText = 'Error: ' + error;
-            });
-        };
-    </script>
-</body>
+                <script>
+                    let isVoting = false;  // Prevent multiple rapid clicks
+
+                    function sendMessage(message) {
+                        if (isVoting) return; // Prevent multiple rapid clicks
+
+                        const catId = '<%= cat.id %>';  // Assuming cat.id is passed from EJS
+
+                        // Send like or dislike vote to the server
+                        if (message === 'like' || message === 'dislike') {
+                            isVoting = true; // Set to true when voting starts
+
+                            fetch(`/api/${message}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ cat: catId })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(`${message.charAt(0).toUpperCase() + message.slice(1)} sent:`, data);  // Log the response from the API
+                                document.getElementById('response').innerText = `${message.charAt(0).toUpperCase() + message.slice(1)} sent successfully!`;
+
+                                // Fetch updated like stats after the action
+                                fetchLikeStats(catId);
+                            })
+                            .catch((error) => {
+                                console.error(`Error ${message}ing the cat:`, error);
+                                document.getElementById('response').innerText = `Error ${message}ing the cat: ` + error;
+                            })
+                            .finally(() => {
+                                isVoting = false; // Reset the voting flag after the process
+                            });
+                        }
+                    }
+
+                    function fetchLikeStats(catId) {
+                        // Fetch like and dislike stats for the specific image
+                        fetch(`/api/likes/${catId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Like stats:', data);  // Log the response with like stats
+                            const { totalVotes, userVotes } = data;
+
+                            // Update the UI with total votes and user's votes
+                            document.getElementById('totalVotes').innerText = `Total votes: ${totalVotes}`;
+                            document.getElementById('userVotes').innerText = `Your votes: ${userVotes}`;
+                        })
+                        .catch((error) => {
+                            console.error('Error fetching like stats:', error);
+                            document.getElementById('response').innerText = 'Error fetching like stats: ' + error;
+                        });
+                    }
+                </script>
+
+
+    </body>
 </html>

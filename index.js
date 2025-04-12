@@ -1,13 +1,39 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const app = express();
-const cors = require('cors');
+let cachedBreeds = [];
 
 app.set('view engine', 'ejs'); // Set the view engine to ejs
 app.use(express.static('public')); // Set the views directory
 app.use(express.json()); // Use JSON
 app.use(cookieParser()); // Use Cookie Parser
-app.use(cors());
+
+async function cacheBreeds() {
+  const headers = new Headers({
+    "Content-Type": "application/json",
+    "x-api-key": process.env.CatApi
+  });
+  try {
+    const response = await fetch('https://api.thecatapi.com/v1/breeds', {
+      method: 'GET',
+      headers: headers
+    });
+    cachedBreeds = await response.json();
+    console.log(`Cached ${cachedBreeds.length} breeds.`);
+  } catch (err) {
+    console.error('Error caching breeds:', err);
+  }
+}
+
+
+
+
+
+
+
+
+
+
 
 
 // API requests
@@ -56,61 +82,127 @@ app.get('/login', function(req, res) {
 });
 // search
 app.get('/search', function(req, res) {
-  
   res.render('search.ejs');
 });
 
 
-// Like API
-app.post('/api/like', async(req, res) => {
+app.post('/api/like', async (req, res) => {
+  const imageId = req.body.cat;
+  const subId = req.cookies.userId;
+
+  if (!imageId || !subId) {
+    return res.status(400).json({ error: 'Missing image ID or user ID' });
+  }
+
+  try {
+    const sendOptions = {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({
+        image_id: imageId,
+        value: 1,
+        sub_id: subId
+      })
+    };
+
+    const voteResponse = await fetch('https://api.thecatapi.com/v1/votes', sendOptions);
+    const voteData = await voteResponse.json();
+
+    if (!voteResponse.ok) throw new Error(voteData.message || 'Failed to vote');
+
+    res.json({ status: 'success', message: 'Like submitted', voteData });
+  } catch (err) {
+    console.error('Error submitting like:', err);
+    res.status(500).json({ status: 'error', message: 'Something went wrong while liking' });
+  }
+});
+    
+app.get('/api/likes/:imageId', async (req, res) => {
+  const imageId = req.params.imageId;
+  const subId = req.cookies.userId;
+
+  if (!imageId) {
+    return res.status(400).json({ error: 'Image ID is required' });
+  }
+
+  try {
+    const requestOptions = {
+      method: 'GET',
+      headers: headers,
+      redirect: 'follow'
+    };
+
+    const voteRes = await fetch(`https://api.thecatapi.com/v1/votes?image_id=${imageId}`, requestOptions);
+    const voteList = await voteRes.json();
+
+    if (!Array.isArray(voteList)) throw new Error('Invalid response from vote API');
+
+    const totalVotes = voteList.length;
+    const userVotes = subId ? voteList.filter(v => v.sub_id === subId).length : 0;
+
+    res.json({
+      status: 'success',
+      imageId,
+      totalVotes,
+      userVotes,
+    });
+  } catch (err) {
+    console.error('Error fetching like data:', err);
+    res.status(500).json({ status: 'error', message: 'Failed to fetch like stats' });
+  }
+});
+
+// Dislike API
+// Dislike API
+app.post('/api/dislike', async(req, res) => {
   const sendOptions = {
     method: 'POST',
     headers: headers,
     body: JSON.stringify({
       "image_id": req.body.cat,
-      "value": 1,
+      "value": 0,  // Dislike is a value of 0
       "sub_id": req.cookies.userId
-    })};
-  const vote = await fetch('https://api.thecatapi.com/v1/votes', sendOptions)
-  //console.log(vote);
-  const requestOptions = {
-    method: 'GET',
-    headers: headers,
-    redirect: 'follow'
+    })
+  };
+
+  try {
+    const vote = await fetch('https://api.thecatapi.com/v1/votes', sendOptions);
+    const voteData = await vote.json();
+
+    console.log('Dislike sent:', voteData);  // Debugging the response
+
+    // Now fetch updated vote statistics
+    const getvotes = await fetch('https://api.thecatapi.com/v1/votes', {
+      method: 'GET',
+      headers: headers,
+      redirect: 'follow'
+    });
+
+    const data = await getvotes.json();
+    const filteredByImageId = data.filter(item => item.image_id === req.body.cat);
+    const totalWithImageId = filteredByImageId.length;
+
+    const withUsernameSubId = filteredByImageId.filter(item => item.sub_id === req.cookies.userId);
+    const totalWithUsername = withUsernameSubId.length;
+
+    console.log("Total votes for image_id:", totalWithImageId);
+    console.log("User's votes for image_id:", totalWithUsername);
+
+    res.json({
+      status: 'success',
+      message: 'Dislike submitted',
+      voteData: {
+        imageId: req.body.cat,
+        totalVotes: totalWithImageId,
+        userVotes: totalWithUsername
+      }
+    });
+  } catch (error) {
+    console.error('Error sending dislike:', error);
+    res.status(500).json({ status: 'error', message: 'Error sending dislike' });
   }
-  const getvotes = await fetch(`https://api.thecatapi.com/v1/votes`, requestOptions)
-  const data = await getvotes.json();
-  console.log(data);
- 
-  const filteredByImageId = data.filter(item => item.image_id === req.body.cat);
-  const totalWithImageId = filteredByImageId.length;
-
-  const withUsernameSubId = filteredByImageId.filter(item => item.sub_id === req.cookies.userId);
-  const totalWithUsername = withUsernameSubId.length;
-
-  console.log("Total with image_id JFPROfGtQ:", totalWithImageId);
-  console.log("Of those, total with sub_id username:", totalWithUsername);
-
-
-
-
-
-
-
-
-
-  /*
-  const receivedMessage = req.body;
-  console.log('Received message:', receivedMessage);
-  */
-  res.json({ status: 'success' });
 });
-// Dislike API
-app.post('/api/dislike', async(req, res) => {
-  const receivedMessage = req.body;  console.log('disliked')
-  //console.log('Received message:', receivedMessage);
-  res.json({ received: receivedMessage.cat, status: 'success' });
-});
+
 
 // Login API
 app.post('/api/login', async(req, res) => {
@@ -121,6 +213,7 @@ app.post('/api/login', async(req, res) => {
   });
   res.json({ received: receivedMessage.message, message: 'Login Cookie set', status: 'success' });
 });
+
 // Logout API
 app.post('/api/logout', async(req, res) => {
   res.clearCookie('userId', { path: '/'});
@@ -133,40 +226,41 @@ app.post('/api/get/login', async(req, res) => {
   res.json({ user: userId });
 });
 
-// get all avalible breeds
-app.get('/api/breeds', async (req, res) => {
-  try {
-    const response = await fetch('https://api.thecatapi.com/v1/breeds', {
-      headers: { 'x-api-key': API_KEY }
-    });
-    const data = await response.json();
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: 'Fehler beim Laden der Rassen' });
-  }
+// Search API - Autocomplete for breeds
+app.get('/api/breeds', (req, res) => {
+  const names = cachedBreeds.map(b => ({ name: b.name, id: b.id }));
+  res.json(names);
 });
 
-// search fo a cat
-app.get('/api/cats', async (req, res) => {
-  const breedId = req.query.breed;
-  const url = breedId
-    ? `https://api.thecatapi.com/v1/images/search?breed_ids=${breedId}&limit=10`
-    : `https://api.thecatapi.com/v1/images/search?has_breeds=1&limit=20`;
-
+// Search API - returns 1 image by breed name
+app.post('/api/search', async (req, res) => {
+  const query = req.body.query.toLowerCase();
+  const breed = cachedBreeds.find(b => b.name.toLowerCase() === query);
+  if (!breed) return res.status(404).json({ error: 'Breed not found' });
+  const requestOptions = {
+    method: 'GET',
+    headers: headers,
+    redirect: 'follow'
+  };
   try {
-    const response = await fetch(url, {
-      headers: { 'x-api-key': API_KEY }
-    });
+    const response = await fetch(`https://api.thecatapi.com/v1/images/search?breed_ids=${breed.id}&limit=1`, requestOptions);
     const data = await response.json();
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: 'Fehler beim Laden der Bilder' });
+    const image = data[0];
+    res.json({ breed, image });
+  } catch (error) {
+    console.error('Search API Error:', error);
+    res.status(500).json({ error: 'Failed to fetch image' });
   }
 });
 
 
+
+
+
+
+// Run on server start
+cacheBreeds(); 
 // Webserver listener
 app.listen(80, () => {
   console.log('Server is listening on port 80');
 });
-
