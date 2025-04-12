@@ -4,22 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/style.css">
-    <style>
-        .container {
-            grid-template-areas:
-                "header"
-                "buttons"
-                "footer";
-            grid-template-columns: 1fr;
-        }
-    </style>
+    <style>.container { grid-template-areas: "header" "buttons" "footer"; grid-template-columns: 1fr; }</style>
     <title>The Cat Project</title>
 </head>
 <body>
     <div class="container">
-        <header class="header">
-            <h1>The Cat Project - by Tamino and Tobias</h1>
-        </header>
+        <header class="header"><h1>The Cat Project - by Tamino and Tobias</h1></header>
         <section class="buttons">
             <div id="response">
                 <button class="lbutton logout" onclick="logout()">Logout</button>
@@ -27,49 +17,28 @@
                 <button class="lbutton login" onclick="login(document.getElementById('userID').value)">Login</button>
             </div>
         </section>
-        <footer class="footer">This project was made by Tamino and Tobias for school, feel free to reach out on <a href="https://github.com/odikazo/TheCatProject">GitHub</a> or to see the source code.</footer>
+        <footer class="footer">Project by Tamino and Tobias - <a href="https://github.com/odikazo/TheCatProject">GitHub</a></footer>
     </div>
     <script>
-        async function login(userId) {
-            fetch('/api/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message: userId })
-            })
-            .then(response => response.json()) // Parse the response as JSON
-            .then(data => {
-                console.log('Success:', data); // Log the server response
-                document.getElementById('response').innerHTML = `<p>You have been Successfully loged in as <b>${userId}</b> - Redirecting in 3 seconds..</p>`
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                document.getElementById('response').innerText = 'Error: ' + error;
-            });
-            await new Promise(r => setTimeout(r, 2000));
-            window.location.href = "../";
+        const handleResponse = async (url, userId = '') => {
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: userId ? JSON.stringify({ message: userId }) : null
+                });
+                const data = await res.json();
+                document.getElementById('response').innerHTML = userId ? 
+                    `<p>Successfully logged in as <b>${userId}</b> - Redirecting...</p>` :
+                    'Successfully logged out - Redirecting...';
+                await new Promise(r => setTimeout(r, 2000));
+                window.location.href = "../";
+            } catch (err) {
+                document.getElementById('response').innerText = 'Error: ' + err;
+            }
         };
-        
-        async function logout() {
-            fetch('/api/logout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            })
-            .then(response => response.json()) // Parse the response as JSON
-            .then(data => {
-                console.log('Success:', data); // Log the server response
-                document.getElementById('response').innerText = 'You have been Successfully loged out! - Redirecting in 3 seconds..'
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                document.getElementById('response').innerText = 'Error: ' + error;
-            });
-            await new Promise(r => setTimeout(r, 2000));
-            window.location.href = "../";
-        };
+        const login = userId => handleResponse('/api/login', userId);
+        const logout = () => handleResponse('/api/logout');
     </script>
 </body>
 </html>

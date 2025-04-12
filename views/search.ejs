@@ -5,101 +5,66 @@
   <title>Cat Search</title>
   <style>
     body { font-family: Arial; padding: 20px; }
-    .autocomplete-list {
-      border: 1px solid #ccc;
-      max-height: 200px;
-      overflow-y: auto;
-      position: absolute;
-      background: white;
-      z-index: 10;
-      width: 300px;
-    }
-    .autocomplete-list div {
-      padding: 8px;
-      cursor: pointer;
-    }
-    .autocomplete-list div:hover {
-      background-color: #f0f0f0;
-    }
-    .cat-result {
-      margin-top: 20px;
-    }
-    .cat-result img {
-      max-width: 300px;
-    }
+    .autocomplete-list { border: 1px solid #ccc; max-height: 200px; overflow-y: auto; position: absolute; background: white; z-index: 10; width: 300px; }
+    .autocomplete-list div { padding: 8px; cursor: pointer; }
+    .autocomplete-list div:hover { background-color: #f0f0f0; }
+    .cat-result { margin-top: 20px; }
+    .cat-result img { max-width: 300px; }
   </style>
 </head>
 <body>
   <h2>Find Your Cat</h2>
-
   <div style="position: relative;">
     <input type="text" id="searchInput" placeholder="Type or select a breed" autocomplete="off" style="width: 300px; padding: 8px;">
     <div id="autocompleteList" class="autocomplete-list" style="display: none;"></div>
   </div>
-
   <button onclick="searchCat()">Search</button>
-
   <div id="result" class="cat-result"></div>
 
   <script>
     let breeds = [];
-
-    window.onload = async () => {
-      const res = await fetch('/api/breeds');
-      breeds = await res.json();
-    };
-
     const input = document.getElementById('searchInput');
     const list = document.getElementById('autocompleteList');
     const resultDiv = document.getElementById('result');
 
+    fetch('/api/breeds').then(r => r.json()).then(b => breeds = b);
+
+    const showAutocomplete = () => {
+      const filtered = breeds.filter(b => b.name.toLowerCase().includes(input.value.toLowerCase()));
+      list.innerHTML = filtered.map(b => 
+        `<div onclick="selectBreed('${b.name}')">${b.name}</div>`
+      ).join('');
+      list.style.display = 'block';
+    };
+
+    const selectBreed = name => {
+      input.value = name;
+      list.style.display = 'none';
+    };
+
     input.addEventListener('focus', showAutocomplete);
     input.addEventListener('input', showAutocomplete);
     document.addEventListener('click', e => {
-      if (!e.target.closest('#autocompleteList') && e.target !== input) {
-        list.style.display = 'none';
-      }
+      if (!e.target.closest('#autocompleteList') && e.target !== input) list.style.display = 'none';
     });
 
-    function showAutocomplete() {
-      const query = input.value.toLowerCase();
-      const filtered = breeds.filter(b => b.name.toLowerCase().includes(query));
-      list.innerHTML = '';
-      filtered.forEach(b => {
-        const div = document.createElement('div');
-        div.textContent = b.name;
-        div.onclick = () => {
-          input.value = b.name;
-          list.style.display = 'none';
-        };
-        list.appendChild(div);
-      });
-      list.style.display = 'block';
-    }
-
     async function searchCat() {
-      const query = input.value.trim();
       resultDiv.innerHTML = 'Searching...';
-
-      const res = await fetch('/api/search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query })
-      });
-
-      const data = await res.json();
-
-      if (res.status !== 200) {
-        resultDiv.textContent = data.error || 'Something went wrong';
-        return;
+      try {
+        const res = await fetch('/api/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: input.value.trim() })
+        });
+        const { breed, image } = await res.json();
+        resultDiv.innerHTML = `
+          <h3>${breed.name}</h3>
+          <img src="${image.url}" alt="${breed.name}">
+          <p>${breed.description || 'No description available.'}</p>
+        `;
+      } catch (err) {
+        resultDiv.textContent = 'Something went wrong';
       }
-
-      const { breed, image } = data;
-      resultDiv.innerHTML = `
-        <h3>${breed.name}</h3>
-        <img src="${image.url}" alt="${breed.name}">
-        <p>${breed.description || 'No description available.'}</p>
-      `;
     }
   </script>
 </body>

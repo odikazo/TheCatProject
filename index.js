@@ -1,266 +1,107 @@
 const express = require('express');
-const cookieParser = require('cookie-parser');
 const app = express();
 let cachedBreeds = [];
 
-app.set('view engine', 'ejs'); // Set the view engine to ejs
-app.use(express.static('public')); // Set the views directory
-app.use(express.json()); // Use JSON
-app.use(cookieParser()); // Use Cookie Parser
+app.set('view engine', 'ejs');
+app.use(express.static('public'), express.json(), require('cookie-parser')());
 
-async function cacheBreeds() {
-  const headers = new Headers({
-    "Content-Type": "application/json",
-    "x-api-key": process.env.CatApi
-  });
+const headers = { "Content-Type": "application/json", "x-api-key": process.env.CatApi };
+
+const cacheBreeds = async () => {
   try {
-    const response = await fetch('https://api.thecatapi.com/v1/breeds', {
-      method: 'GET',
-      headers: headers
-    });
-    cachedBreeds = await response.json();
-    console.log(`Cached ${cachedBreeds.length} breeds.`);
-  } catch (err) {
-    console.error('Error caching breeds:', err);
-  }
-}
+    const res = await fetch('https://api.thecatapi.com/v1/breeds', { headers });
+    cachedBreeds = await res.json();
+  } catch (err) { console.error('Error caching breeds:', err); }
+};
 
-
-
-
-
-
-
-
-
-
-
-
-// API requests
-const headers = new Headers({
-  "Content-Type": "application/json",
-  "x-api-key": process.env.CatApi
-});
-
-async function ApiRequest() {
-  const requestOptions = {
-    method: 'GET',
-    headers: headers,
-    redirect: 'follow'
-  };
-  
+const getRandomCat = async () => {
   try {
-    const response = await fetch("https://api.thecatapi.com/v1/images/search?size=med&mime_types=jpg&format=json&has_breeds=true&order=RANDOM&page=0&limit=1", requestOptions);
-    const result = await response.json(); // Parse JSON response
-    return result; // Return the actual data
-  } catch (error) {
-    console.error('Error fetching API:', error);
-    return []; // Return empty array on failure
+    const res = await fetch("https://api.thecatapi.com/v1/images/search?size=med&mime_types=jpg&format=json&has_breeds=true&order=RANDOM&limit=1", { headers });
+    return await res.json();
+  } catch (err) { 
+    console.error('API Error:', err);
+    return [];
   }
-}
+};
 
-// Index page - Fetch data inside the route
-app.get('/', async function(req, res) {
-  let userId = req.cookies.userId;
+app.get('/', async (req, res) => {
   try {
-    const result = await ApiRequest(); // Fetch API data
-    const cat = result[0]; // Extract first cat object
-    // console.log(cat); // DEBUG
-    res.render('index.ejs', { cat, userId }); // Pass cat object to EJS
-  } catch (error) {
-    res.status(500).send('Error fetching data');
-  }
+    const [cat] = await getRandomCat();
+    res.render('index.ejs', { cat, userId: req.cookies.userId });
+  } catch (err) { res.status(500).send('Error fetching data'); }
 });
 
-// Login page
-app.get('/login', function(req, res) {
-  let userId = req.cookies.userId;
-  if (!userId) {
-    userId = 'username';
-  };
-  res.render('login.ejs', { userId });
-});
-// search
-app.get('/search', function(req, res) {
-  res.render('search.ejs');
-});
-
+app.get('/login', (req, res) => res.render('login.ejs', { userId: req.cookies.userId || 'username' }));
+app.get('/search', (req, res) => res.render('search.ejs'));
 
 app.post('/api/like', async (req, res) => {
-  const imageId = req.body.cat;
+  const { cat: imageId } = req.body;
   const subId = req.cookies.userId;
-
-  if (!imageId || !subId) {
-    return res.status(400).json({ error: 'Missing image ID or user ID' });
-  }
+  if (!imageId || !subId) return res.status(400).json({ error: 'Missing data' });
 
   try {
-    const sendOptions = {
+    const vote = await fetch('https://api.thecatapi.com/v1/votes', {
       method: 'POST',
-      headers: headers,
-      body: JSON.stringify({
-        image_id: imageId,
-        value: 1,
-        sub_id: subId
-      })
-    };
-
-    const voteResponse = await fetch('https://api.thecatapi.com/v1/votes', sendOptions);
-    const voteData = await voteResponse.json();
-
-    if (!voteResponse.ok) throw new Error(voteData.message || 'Failed to vote');
-
-    res.json({ status: 'success', message: 'Like submitted', voteData });
+      headers,
+      body: JSON.stringify({ image_id: imageId, value: 1, sub_id: subId })
+    });
+    const data = await vote.json();
+    res.json({ status: 'success', data });
   } catch (err) {
-    console.error('Error submitting like:', err);
-    res.status(500).json({ status: 'error', message: 'Something went wrong while liking' });
+    res.status(500).json({ status: 'error', message: err.message });
   }
 });
-    
+
 app.get('/api/likes/:imageId', async (req, res) => {
-  const imageId = req.params.imageId;
-  const subId = req.cookies.userId;
-
-  if (!imageId) {
-    return res.status(400).json({ error: 'Image ID is required' });
-  }
-
   try {
-    const requestOptions = {
-      method: 'GET',
-      headers: headers,
-      redirect: 'follow'
-    };
-
-    const voteRes = await fetch(`https://api.thecatapi.com/v1/votes?image_id=${imageId}`, requestOptions);
-    const voteList = await voteRes.json();
-
-    if (!Array.isArray(voteList)) throw new Error('Invalid response from vote API');
-
-    const totalVotes = voteList.length;
-    const userVotes = subId ? voteList.filter(v => v.sub_id === subId).length : 0;
-
+    const votes = await fetch(`https://api.thecatapi.com/v1/votes?image_id=${req.params.imageId}`, { headers });
+    const voteList = await votes.json();
     res.json({
-      status: 'success',
-      imageId,
-      totalVotes,
-      userVotes,
+      totalVotes: voteList.length,
+      userVotes: req.cookies.userId ? voteList.filter(v => v.sub_id === req.cookies.userId).length : 0
     });
   } catch (err) {
-    console.error('Error fetching like data:', err);
-    res.status(500).json({ status: 'error', message: 'Failed to fetch like stats' });
+    res.status(500).json({ status: 'error', message: err.message });
   }
 });
 
-// Dislike API
-// Dislike API
-app.post('/api/dislike', async(req, res) => {
-  const sendOptions = {
-    method: 'POST',
-    headers: headers,
-    body: JSON.stringify({
-      "image_id": req.body.cat,
-      "value": 0,  // Dislike is a value of 0
-      "sub_id": req.cookies.userId
-    })
-  };
-
+app.post('/api/dislike', async (req, res) => {
   try {
-    const vote = await fetch('https://api.thecatapi.com/v1/votes', sendOptions);
-    const voteData = await vote.json();
-
-    console.log('Dislike sent:', voteData);  // Debugging the response
-
-    // Now fetch updated vote statistics
-    const getvotes = await fetch('https://api.thecatapi.com/v1/votes', {
-      method: 'GET',
-      headers: headers,
-      redirect: 'follow'
+    const vote = await fetch('https://api.thecatapi.com/v1/votes', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ image_id: req.body.cat, value: 0, sub_id: req.cookies.userId })
     });
-
-    const data = await getvotes.json();
-    const filteredByImageId = data.filter(item => item.image_id === req.body.cat);
-    const totalWithImageId = filteredByImageId.length;
-
-    const withUsernameSubId = filteredByImageId.filter(item => item.sub_id === req.cookies.userId);
-    const totalWithUsername = withUsernameSubId.length;
-
-    console.log("Total votes for image_id:", totalWithImageId);
-    console.log("User's votes for image_id:", totalWithUsername);
-
-    res.json({
-      status: 'success',
-      message: 'Dislike submitted',
-      voteData: {
-        imageId: req.body.cat,
-        totalVotes: totalWithImageId,
-        userVotes: totalWithUsername
-      }
-    });
-  } catch (error) {
-    console.error('Error sending dislike:', error);
-    res.status(500).json({ status: 'error', message: 'Error sending dislike' });
+    res.json({ status: 'success', data: await vote.json() });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
   }
 });
 
-
-// Login API
-app.post('/api/login', async(req, res) => {
-  const receivedMessage = req.body;
-  res.cookie('userId', receivedMessage.message, { 
-    path: '/',
-    httpOnly: true
-  });
-  res.json({ received: receivedMessage.message, message: 'Login Cookie set', status: 'success' });
+app.post('/api/login', (req, res) => {
+  res.cookie('userId', req.body.message, { path: '/', httpOnly: true })
+     .json({ status: 'success' });
 });
 
-// Logout API
-app.post('/api/logout', async(req, res) => {
-  res.clearCookie('userId', { path: '/'});
-  res.json({ status: 'success' });
+app.post('/api/logout', (req, res) => {
+  res.clearCookie('userId', { path: '/' }).json({ status: 'success' });
 });
 
-// get login information
-app.post('/api/get/login', async(req, res) => {
-  const userId = req.cookies.userId;
-  res.json({ user: userId });
-});
-
-// Search API - Autocomplete for breeds
 app.get('/api/breeds', (req, res) => {
-  const names = cachedBreeds.map(b => ({ name: b.name, id: b.id }));
-  res.json(names);
+  res.json(cachedBreeds.map(b => ({ name: b.name, id: b.id })));
 });
 
-// Search API - returns 1 image by breed name
 app.post('/api/search', async (req, res) => {
-  const query = req.body.query.toLowerCase();
-  const breed = cachedBreeds.find(b => b.name.toLowerCase() === query);
+  const breed = cachedBreeds.find(b => b.name.toLowerCase() === req.body.query.toLowerCase());
   if (!breed) return res.status(404).json({ error: 'Breed not found' });
-  const requestOptions = {
-    method: 'GET',
-    headers: headers,
-    redirect: 'follow'
-  };
+
   try {
-    const response = await fetch(`https://api.thecatapi.com/v1/images/search?breed_ids=${breed.id}&limit=1`, requestOptions);
-    const data = await response.json();
-    const image = data[0];
+    const [image] = await (await fetch(`https://api.thecatapi.com/v1/images/search?breed_ids=${breed.id}&limit=1`, { headers })).json();
     res.json({ breed, image });
-  } catch (error) {
-    console.error('Search API Error:', error);
+  } catch (err) {
     res.status(500).json({ error: 'Failed to fetch image' });
   }
 });
 
-
-
-
-
-
-// Run on server start
-cacheBreeds(); 
-// Webserver listener
-app.listen(80, () => {
-  console.log('Server is listening on port 80');
-});
+cacheBreeds();
+app.listen(80, () => console.log('Server running on port 80'));
