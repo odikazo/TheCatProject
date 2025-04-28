@@ -169,12 +169,12 @@
                                     isVoting = false; // Reset the voting flag after the process
                                   });
                                 };
-                                window.location.reload();
+                                //window.location.reload();
                               }
 
-                              function fetchLikeStats(catId) {
+                              function fetchLikeStats(catBreed) {
                                 // Fetch like and dislike stats for the specific image
-                                fetch(`/api/likes/${catId}`)
+                                fetch(`/api/likes/${catBreed}`)
                                 .then(response => response.json())
                                 .then(data => {
                                   console.log('Like stats:', data);  // Log the response with like stats
@@ -188,7 +188,7 @@
                                   document.getElementById('response').innerText = 'Error fetching like stats: ' + error;
                                 });
                               }
-                              fetchLikeStats('<%= cat.id %>');
+                              fetchLikeStats('<%= cat.breeds[0].id %>');
 
                               // Fetch and display leaderboard sorted by breed
                               fetch('/api/leaderboard')

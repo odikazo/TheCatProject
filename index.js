@@ -52,19 +52,66 @@ app.post('/api/like', async (req, res) => {
   }
 });
 
-app.get('/api/likes/:imageId', async (req, res) => {
+
+
+
+const cache = {}; // cache[breed][userId] = voteCount
+const cacheTimestamp = { lastSync: null };
+
+// GET /api/likes/:breed
+app.get('/api/likes/:breed', (req, res) => {
+  const breed = req.params.breed;
+  const userId = req.cookies.userId;
+
+  if (!cache[breed]) {
+    return res.status(404).json({ status: 'error', message: 'Breed not found in cache. Please sync first.' });
+  }
+
+  const breedVotes = cache[breed];
+  const totalVotes = Object.values(breedVotes).reduce((sum, votes) => sum + votes, 0);
+  const userVotes = userId ? (breedVotes[userId] || 0) : 0;
+
+  res.json({ totalVotes, userVotes });
+});
+
+// POST /api/likes/sync
+app.post('/api/likes/sync', async (req, res) => {
   try {
-    const votes = await fetch(`https://api.thecatapi.com/v1/votes?image_id=${req.params.imageId}`, { headers });
-    const voteListUnsorted = await votes.json();
-    const voteList = voteListUnsorted.filter(vote => vote.image_id === req.params.imageId);
-    res.json({
-      totalVotes: voteList.length,
-      userVotes: req.cookies.userId ? voteList.filter(v => v.sub_id === req.cookies.userId).length : 0
-    });
+    const response = await fetch('https://api.thecatapi.com/v1/votes', { headers });
+    const votes = await response.json();
+
+    const newCache = {};
+
+    for (const vote of votes) {
+      const breedId = vote.breed_id; // Check if breed_id exists
+      const subId = vote.sub_id || 'anonymous';
+
+      if (!breedId) continue; // skip votes without breed info
+
+      if (!newCache[breedId]) {
+        newCache[breedId] = {};
+      }
+
+      newCache[breedId][subId] = (newCache[breedId][subId] || 0) + 1;
+    }
+
+    // Update cache and timestamp
+    Object.assign(cache, newCache);
+    cacheTimestamp.lastSync = Date.now();
+
+    console.log('Cache synced successfully:', cache);
+
+    res.json({ status: 'success', message: 'Cache synced successfully.', lastSync: cacheTimestamp.lastSync });
+
   } catch (err) {
     res.status(500).json({ status: 'error', message: err.message });
   }
 });
+
+
+
+
+
 
 app.post('/api/dislike', async (req, res) => {
   try {
