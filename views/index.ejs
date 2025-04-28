@@ -1,201 +1,218 @@
-<!DOCTYPE html>
-<html lang="en-US">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/style.css">
-    <title>The Cat Project</title>
-    <style>
-        /* ---- Layout für große Bildschirme (Desktop) ---- */
-        @media (min-width: 1024px) {
-            .container {
-                grid-template-areas:
-                    "header header header header"
-                    "account image image description"
-                    "leaderboard image image description"
-                    "leaderboard buttons buttons description"
-                    "statistics statistics others others"
-                    "footer footer footer footer";
-                grid-template-columns: 250px 0.5fr 0.5fr 250px;
-            }
-        }
-    
-        /* ---- Layout für Tablets ---- */
-        @media (min-width: 768px) and (max-width: 1023px) {
-            .container {
-                grid-template-areas:
-                    "header header header"
-                    "account image image"
-                    "leaderboard image image"
-                    "description description description"
-                    "buttons buttons buttons"
-                    "statistics statistics others"
-                    "footer footer footer";
-                grid-template-columns: 0.3fr 0.2fr 0.5fr;
-            }
-        }
-    
-        /* ---- Layout für Smartphones ---- */
-        @media (max-width: 767px) {
-            .container {
-                grid-template-areas:
-                    "header"
-                    "account"
-                    "leaderboard"
-                    "image"
-                    "description"
-                    "buttons"
-                    "statistics"
-                    "others"
-                    "footer";
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header class="header">
-            <h1>The Cat Project - by Tamino and Tobias</h1>
-        </header>
-        <div class="search">
-       
-        </div>    
-        <section class="account">
-            <% if (userId) { %>
-                <p>Logged in as <b><%= userId %></b></p>
-                <a href="./login">Manage</a>
-            <% } else { %>
-                <p>You aren't logged in yet.</p>
-                <a href="./login">Login</a>
-            <% }; %>
-        </section>
-        <section class="leaderboard">
-            <h3>Leaderboard</h3>
-            <ul>
-                <li>Kaka</li>
-                <li>Pipi</li>
-                <li>Popo</li>
-            </ul>
-        </section>
-        <main class="image">
-            <img src="<%= cat.url %>" max-width="<%= cat.width %>" max-height="<%= cat.height %>">
-        </main>
-        <section class="description">
-            <h3>Informations about <%= cat.breeds[0].name %></h3>
-            <p><%= cat.breeds[0].description %></p>
-            <ul>
-                <% if (cat.breeds[0].alt_names) { %>
-                    <li>Also known under: <span><%= cat.breeds[0].alt_names %></span></li>
-                <% }; %>
-                <li>Life span: <span><%= cat.breeds[0].life_span %> Years</span></li>
-                <li>Average weight:<span><%= cat.breeds[0].weight.imperial%> kg</span></li>
-                <li>Origin: <span><%= cat.breeds[0].origin %></span></li>
-            </ul>
-        </section>
-        <buttons class="buttons">
-            <% if (userId) { %>
-                <button class="like" onclick="sendMessage('like')"><img src="/like.png" height="80px" width="auto"></button>
-                <button class="dislike" onclick="sendMessage('dislike')"><img src="/dislike.webp" height="80px" width="auto"></button>
-            <% } else { %>
-                <p>You can only vote when you're logged in (You only need a username)</p>
-            <% }; %>
-            <div id="response"></div>
-        </buttons>
-        <div class="statistics">
-            <h3>Stats:</h3>
-            <ul>
-                <li>Indoor:<span><%= cat.breeds[0].indoor %>/5</span></li>
-                <li>Adaptability:<span><%= cat.breeds[0].adaptability %>/5</span></li>
-                <li>Affection level:<span><%= cat.breeds[0].affection_level %>/5</span></li>
-                <li>Child friendly:<span><%= cat.breeds[0].child_friendly %>/5</span></li>
-                <li>Dog friendly:<span><%= cat.breeds[0].dog_friendly %>/5</span></li>
-                <li>Energy level:<span><%= cat.breeds[0].energy_level %>/5</span></li>
-                <li>Grooming:<span><%= cat.breeds[0].grooming %>/5</span></li>
-                <li>Health issues:<span><%= cat.breeds[0].health_issues %>/5</span></li>
-                <li>Intelligence:<span><%= cat.breeds[0].intelligence %>/5</span></li>
-                <li>Shedding level:<span><%= cat.breeds[0].shedding_level %>/5</span></li>
-                <li>Social needs:<span><%= cat.breeds[0].social_needs %>/5</span></li>
-                <li>Stranger friendly:<span><%= cat.breeds[0].stranger_friendly %>/5</span></li>
-                <li>Vocalisation:<span><%= cat.breeds[0].vocalisation %>/5</span></li>
-                <li>Experimental:<span><%= cat.breeds[0].experimental %>/5</span></li>
-                <li>Hairless:<span><%= cat.breeds[0].hairless %>/5</span></li>
-                <li>Natural:<span><%= cat.breeds[0].natural %>/5</span></li>
-                <li>Rare:<span><%= cat.breeds[0].rare %>/5</span></li>
-                <li>Rex:<span><%= cat.breeds[0].rex %>/5</span></li>
-                <li>Suppressed Tail:<span><%= cat.breeds[0].suppressed_tail %>/5</span></li>
-                <li>Short legs:<span><%= cat.breeds[0].short_legs %>/5</span></li>
-                <li>Hypoallergenic:<span><%= cat.breeds[0].hypoallergenic %>/5</span></li>
-            </ul>
-        </div>
-        <div class="others">
-            <div id="response"></div> <!-- Will show the result of the like action -->
-            <div id="totalVotes"></div> <!-- Will show the total number of votes for this image -->
-            <div id="userVotes"></div> <!-- Will show the number of votes by the current user -->
-            <h3>More Stuff:</h3>
-            <ul>
-                <li>Likes:<span>UNDEFINED</span></li>
-                <li>Dislikes:<span>UNDEFINED</span></li>
-            </ul>
-        </div>
-        <footer class="footer">This project was made by Tamino and Tobias for school, feel free to reach out on <a  target="_blank" href="https://github.com/odikazo/TheCatProject">GitHub</a> or to see the source code.</footer>
-    </div>
-                <script>
-                    let isVoting = false;  // Prevent multiple rapid clicks
+                    <!DOCTYPE html>
+                    <html lang="en-US">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <link rel="stylesheet" href="/style.css">
+                            <title>The Cat Project</title>
+                            <style>
+                                /* ---- Layout für große Bildschirme (Desktop) ---- */
+                                @media (min-width: 1024px) {
+                                    .container {
+                                        display: grid;
+                                        grid-template-areas:
+                                            "header header header header"
+                                            "account image image description"
+                                            "leaderboard image image description"
+                                            "leaderboard buttons buttons description"
+                                            "statistics statistics others others"
+                                            "footer footer footer footer";
+                                        grid-template-columns: 250px 0.5fr 0.5fr 250px;
+                                    }
+                                }
 
-                    function sendMessage(message) {
-                        if (isVoting) return; // Prevent multiple rapid clicks
+                                /* ---- Layout für Tablets ---- */
+                                @media (min-width: 768px) and (max-width: 1023px) {
+                                    .container {
+                                        display: grid;
+                                        grid-template-areas:
+                                            "header header header"
+                                            "account image image"
+                                            "leaderboard image image"
+                                            "description description description"
+                                            "buttons buttons buttons"
+                                            "statistics statistics others"
+                                            "footer footer footer";
+                                        grid-template-columns: 0.3fr 0.2fr 0.5fr;
+                                    }
+                                }
 
-                        const catId = '<%= cat.id %>';  // Assuming cat.id is passed from EJS
+                                /* ---- Layout für Smartphones ---- */
+                                @media (max-width: 767px) {
+                                    .container {
+                                        display: grid;
+                                        grid-template-areas:
+                                            "header"
+                                            "account"
+                                            "leaderboard"
+                                            "image"
+                                            "description"
+                                            "buttons"
+                                            "statistics"
+                                            "others"
+                                            "footer";
+                                        grid-template-columns: 1fr;
+                                    }
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="container">
+                                <header class="header">
+                                    <h1>The Cat Project - by Tamino and Tobias</h1>
+                                </header>
+                                <div class="search">
+                                    <!-- You can add search functionality here -->
+                                </div>    
+                                <section class="account">
+                                    <% if (userId) { %>
+                                        <p>Logged in as <b><%= userId %></b></p>
+                                        <a href="./login">Manage</a>
+                                    <% } else { %>
+                                        <p>You aren't logged in yet.</p>
+                                        <a href="./login">Login</a>
+                                    <% }; %>
+                                </section>
+                                <section class="leaderboard">
+                                    <h3>Leaderboard</h3>
+                                    <ul id="leaderboard-list">
+                                        <p>Loading top 5 most voted cats..</p>
+                                    </ul>
+                                    </section>
 
-                        // Send like or dislike vote to the server
-                        if (message === 'like' || message === 'dislike') {
-                            isVoting = true; // Set to true when voting starts
+                                </section>
+                                <main class="image">
+                                    <img src="<%= cat.url %>" style="max-width: 100%; height: auto;">
+                                </main>
+                                <section class="description">
+                                    <h3>Informations about <%= cat.breeds[0].name %></h3>
+                                    <p><%= cat.breeds[0].description %></p>
+                                    <ul>
+                                        <% if (cat.breeds[0].alt_names) { %>
+                                            <li>Also known under: <span><%= cat.breeds[0].alt_names %></span></li>
+                                        <% }; %>
+                                        <li>Life span: <span><%= cat.breeds[0].life_span %> Years</span></li>
+                                        <li>Average weight:<span><%= cat.breeds[0].weight.imperial%> kg</span></li>
+                                        <li>Origin: <span><%= cat.breeds[0].origin %></span></li>
+                                    </ul>
+                                </section>
+                                <div class="buttons">
+                                    <% if (userId) { %>
+                                        <button class="like" onclick="sendMessage('like')"><img src="/like.png" height="80px" width="auto"></button>
+                                        <button class="dislike" onclick="sendMessage('dislike')"><img src="/dislike.webp" height="80px" width="auto"></button>
+                                    <% } else { %>
+                                        <p>You can only vote when you're logged in (You only need a username)</p>
+                                    <% }; %>
+                                    <div id="response"></div>
+                                </div>
+                                <div class="statistics">
+                                    <h3>Stats:</h3>
+                                    <ul>
+                                        <li>Indoor:<span><%= cat.breeds[0].indoor %>/5</span></li>
+                                        <li>Adaptability:<span><%= cat.breeds[0].adaptability %>/5</span></li>
+                                        <li>Affection level:<span><%= cat.breeds[0].affection_level %>/5</span></li>
+                                        <li>Child friendly:<span><%= cat.breeds[0].child_friendly %>/5</span></li>
+                                        <li>Dog friendly:<span><%= cat.breeds[0].dog_friendly %>/5</span></li>
+                                        <li>Energy level:<span><%= cat.breeds[0].energy_level %>/5</span></li>
+                                        <li>Grooming:<span><%= cat.breeds[0].grooming %>/5</span></li>
+                                        <li>Health issues:<span><%= cat.breeds[0].health_issues %>/5</span></li>
+                                        <li>Intelligence:<span><%= cat.breeds[0].intelligence %>/5</span></li>
+                                        <li>Shedding level:<span><%= cat.breeds[0].shedding_level %>/5</span></li>
+                                        <li>Social needs:<span><%= cat.breeds[0].social_needs %>/5</span></li>
+                                        <li>Stranger friendly:<span><%= cat.breeds[0].stranger_friendly %>/5</span></li>
+                                        <li>Vocalisation:<span><%= cat.breeds[0].vocalisation %>/5</span></li>
+                                        <li>Experimental:<span><%= cat.breeds[0].experimental %>/5</span></li>
+                                        <li>Hairless:<span><%= cat.breeds[0].hairless %>/5</span></li>
+                                        <li>Natural:<span><%= cat.breeds[0].natural %>/5</span></li>
+                                        <li>Rare:<span><%= cat.breeds[0].rare %>/5</span></li>
+                                        <li>Rex:<span><%= cat.breeds[0].rex %>/5</span></li>
+                                        <li>Suppressed Tail:<span><%= cat.breeds[0].suppressed_tail %>/5</span></li>
+                                        <li>Short legs:<span><%= cat.breeds[0].short_legs %>/5</span></li>
+                                        <li>Hypoallergenic:<span><%= cat.breeds[0].hypoallergenic %>/5</span></li>
+                                    </ul>
+                                </div>
+                                <div class="others">
+                                    <h3>More Stuff:</h3>
+                                    <ul>
+                                        <li>Total Votes:<span id="totalVotes">unknown</span></li>
+                                        <li>Votes by "<%= userId %>":<span id="userVotes">unknown</span></li>
+                                    </ul>
+                                </div>
+                                <footer class="footer">
+                                    <p>This project was made by Tamino and Tobias for school, feel free to reach out on <a target="_blank" href="https://github.com/odikazo/TheCatProject">GitHub</a> or to see the source code.</p>
+                                </footer>
+                            </div>
+                            <script>
+                              let isVoting = false;  // Prevent multiple rapid clicks
+                              function sendMessage(message) {
+                                if (isVoting) return; // Prevent multiple rapid clicks
+                                const catId = '<%= cat.id %>';  // Assuming cat.id is passed from EJS
+                                // Send like or dislike vote to the server
+                                if (message === 'like' || message === 'dislike') {
+                                  isVoting = true; // Set to true when voting starts
+                                  fetch(`/api/${message}`, {
+                                    method: 'POST',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({ cat: catId })
+                                  })
+                                  .then(response => response.json())
+                                  .then(data => {
+                                    console.log(`${message.charAt(0).toUpperCase() + message.slice(1)} sent:`, data);
+                                  })
+                                  .catch((error) => {
+                                    console.error(`Error ${message}ing the cat:`, error);
+                                    document.getElementById('response').innerText = `Error ${message}ing the cat: ` + error;
+                                  })
+                                  .finally(() => {
+                                    isVoting = false; // Reset the voting flag after the process
+                                  });
+                                };
+                                window.location.reload();
+                              }
 
-                            fetch(`/api/${message}`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({ cat: catId })
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                console.log(`${message.charAt(0).toUpperCase() + message.slice(1)} sent:`, data);  // Log the response from the API
-                                document.getElementById('response').innerText = `${message.charAt(0).toUpperCase() + message.slice(1)} sent successfully!`;
+                              function fetchLikeStats(catId) {
+                                // Fetch like and dislike stats for the specific image
+                                fetch(`/api/likes/${catId}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                  console.log('Like stats:', data);  // Log the response with like stats
+                                  const { totalVotes, userVotes } = data;
+                                  // Update the UI with total votes and user's votes
+                                  document.getElementById('totalVotes').innerText = totalVotes;
+                                  document.getElementById('userVotes').innerText = userVotes;
+                                })
+                                .catch((error) => {
+                                  console.error('Error fetching like stats:', error);
+                                  document.getElementById('response').innerText = 'Error fetching like stats: ' + error;
+                                });
+                              }
+                              fetchLikeStats('<%= cat.id %>');
 
-                                // Fetch updated like stats after the action
-                                fetchLikeStats(catId);
-                            })
-                            .catch((error) => {
-                                console.error(`Error ${message}ing the cat:`, error);
-                                document.getElementById('response').innerText = `Error ${message}ing the cat: ` + error;
-                            })
-                            .finally(() => {
-                                isVoting = false; // Reset the voting flag after the process
-                            });
-                        }
-                    }
+                              // Fetch and display leaderboard sorted by breed
+                              fetch('/api/leaderboard')
+                                .then(response => response.json())
+                                .then(breeds => {
+                                  if (!Array.isArray(breeds)) {
+                                    console.error('Unexpected data format:', breeds);
+                                    return;
+                                  }
 
-                    function fetchLikeStats(catId) {
-                        // Fetch like and dislike stats for the specific image
-                        fetch(`/api/likes/${catId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log('Like stats:', data);  // Log the response with like stats
-                            const { totalVotes, userVotes } = data;
-
-                            // Update the UI with total votes and user's votes
-                            document.getElementById('totalVotes').innerText = `Total votes: ${totalVotes}`;
-                            document.getElementById('userVotes').innerText = `Your votes: ${userVotes}`;
-                        })
-                        .catch((error) => {
-                            console.error('Error fetching like stats:', error);
-                            document.getElementById('response').innerText = 'Error fetching like stats: ' + error;
-                        });
-                    }
-                </script>
-
-
-    </body>
-</html>
+                                  const leaderboardList = document.getElementById('leaderboard-list');
+                                  leaderboardList.innerHTML = ''; // Clear the existing list
+                                  breeds.forEach(breedData => {
+                                    const listItem = document.createElement('li');
+                                    listItem.innerHTML = `
+                                      <img src="https://cdn2.thecatapi.com/images/${breedData.imageId}.jpg" alt="Breed Image" style="width: 50px; height: auto;">
+                                      ${breedData.votes} votes - Breed: ${breedData.breed}
+                                    `;
+                                    leaderboardList.appendChild(listItem);
+                                  });
+                                })
+                                .catch(error => {
+                                  console.error('Error fetching leaderboard:', error);
+                                });
+                            </script>
+                        </body>
+                    </html>

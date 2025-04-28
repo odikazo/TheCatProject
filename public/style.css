@@ -59,14 +59,105 @@ a { color: #e7fec8; }
   margin-top: 10px;
 }
 
-.header, .leaderboard, .account, .description, .buttons, .statistics, .others, .footer {
-  background-color: rgba(0,0,0,0.2);
-  backdrop-filter: blur(10px);
-  color: white;
-  padding: 15px;
-  border: 2px solid #f0f0f0;
-  border-radius: 10px;
-  text-align: center;
+.container {
+    display: grid;
+    gap: 10px;
+    width: 90%;
+    max-width: 1200px;
+    margin-top: 10px;
+}
+
+.header {
+    grid-area: header;
+    background-color: rgb(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    text-align: center;
+    padding: 15px;
+    border: 2px solid #f0f0f0; 
+    border-radius: 10px; 
+}
+
+.leaderboard {
+    grid-area: leaderboard;
+    background-color: rgb(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 15px;
+    border: 2px solid #f0f0f0; 
+    border-radius: 10px;
+    text-align: center;
+}
+
+.account {
+    grid-area: account;
+    background-color: rgb(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 15px;
+    border: 2px solid #f0f0f0; 
+    border-radius: 10px;
+    text-align: center;
+}
+
+.image {
+    grid-area: image;
+}
+
+.description {
+    grid-area: description;
+    background-color: rgb(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 15px;
+    border: 2px solid #f0f0f0; 
+    border-radius: 10px; 
+    text-align: center;
+}
+
+.buttons {
+    grid-area: buttons;
+    background-color: rgb(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    text-align: center;
+    align-content: center;
+    padding: 15px;
+    border: 2px solid #f0f0f0; 
+    border-radius: 10px; 
+}
+
+.statistics {
+    grid-area: statistics;
+    background-color: rgb(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    text-align: center;
+    padding: 15px;
+    border: 2px solid #f0f0f0; 
+    border-radius: 10px; 
+}
+
+.others {
+    grid-area: others;
+    background-color: rgb(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    text-align: center;
+    padding: 15px;
+    border: 2px solid #f0f0f0; 
+    border-radius: 10px; 
+}
+
+.footer {
+    grid-area: footer;
+    background-color: rgb(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    text-align: center;
+    padding: 15px;
+    border: 2px solid #f0f0f0; 
+    border-radius: 10px; 
 }
 
 .lbutton { background-color: white; }

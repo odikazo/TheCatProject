@@ -55,7 +55,8 @@ app.post('/api/like', async (req, res) => {
 app.get('/api/likes/:imageId', async (req, res) => {
   try {
     const votes = await fetch(`https://api.thecatapi.com/v1/votes?image_id=${req.params.imageId}`, { headers });
-    const voteList = await votes.json();
+    const voteListUnsorted = await votes.json();
+    const voteList = voteListUnsorted.filter(vote => vote.image_id === req.params.imageId);
     res.json({
       totalVotes: voteList.length,
       userVotes: req.cookies.userId ? voteList.filter(v => v.sub_id === req.cookies.userId).length : 0
