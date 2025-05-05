@@ -12,7 +12,7 @@
                                         display: grid;
                                         grid-template-areas:
                                             "header header header header"
-                                            "account image image description"
+                                            "leaderboard image image description"
                                             "leaderboard image image description"
                                             "leaderboard buttons buttons description"
                                             "statistics statistics others others"
@@ -27,7 +27,7 @@
                                         display: grid;
                                         grid-template-areas:
                                             "header header header"
-                                            "account image image"
+                                            "leaderboard image image"
                                             "leaderboard image image"
                                             "description description description"
                                             "buttons buttons buttons"
@@ -43,7 +43,6 @@
                                         display: grid;
                                         grid-template-areas:
                                             "header"
-                                            "account"
                                             "leaderboard"
                                             "image"
                                             "description"
@@ -61,18 +60,6 @@
                                 <header class="header">
                                     <h1>The Cat Project - by Tamino and Tobias</h1>
                                 </header>
-                                <div class="search">
-                                    <!-- You can add search functionality here -->
-                                </div>    
-                                <section class="account">
-                                    <% if (userId) { %>
-                                        <p>Logged in as <b><%= userId %></b></p>
-                                        <a href="./login">Manage</a>
-                                    <% } else { %>
-                                        <p>You aren't logged in yet.</p>
-                                        <a href="./login">Login</a>
-                                    <% }; %>
-                                </section>
                                 <section class="leaderboard">
                                     <h3>Leaderboard</h3>
                                     <ul id="leaderboard-list">

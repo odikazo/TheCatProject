@@ -4,6 +4,7 @@ let cachedBreeds = [];
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'), express.json(), require('cookie-parser')());
+app.use(express.json());
 
 const headers = { "Content-Type": "application/json", "x-api-key": process.env.CatApi };
 
@@ -31,7 +32,6 @@ app.get('/', async (req, res) => {
   } catch (err) { res.status(500).send('Error fetching data'); }
 });
 
-app.get('/login', (req, res) => res.render('login.ejs', { userId: req.cookies.userId || 'username' }));
 app.get('/search', (req, res) => res.render('search.ejs'));
 
 app.post('/api/like', async (req, res) => {
@@ -55,58 +55,34 @@ app.post('/api/like', async (req, res) => {
 
 
 
-const cache = {}; // cache[breed][userId] = voteCount
-const cacheTimestamp = { lastSync: null };
+const { Sequelize, DataTypes } = require('sequelize');
 
-// GET /api/likes/:breed
-app.get('/api/likes/:breed', (req, res) => {
-  const breed = req.params.breed;
-  const userId = req.cookies.userId;
-
-  if (!cache[breed]) {
-    return res.status(404).json({ status: 'error', message: 'Breed not found in cache. Please sync first.' });
-  }
-
-  const breedVotes = cache[breed];
-  const totalVotes = Object.values(breedVotes).reduce((sum, votes) => sum + votes, 0);
-  const userVotes = userId ? (breedVotes[userId] || 0) : 0;
-
-  res.json({ totalVotes, userVotes });
+// DB connection (can be postgres, sqlite, mysql)
+const sequelize = new Sequelize({
+dialect: 'sqlite',
+storage: './database.sqlite',
 });
 
-// POST /api/likes/sync
-app.post('/api/likes/sync', async (req, res) => {
+const db = require('./database.js')(sequelize, DataTypes);
+
+sequelize.sync().then(() => console.log('Database synced'));
+
+// Middleware
+
+
+
+app.post('/api/likes/:breedId', async (req, res) => {
+  const { breedId } = req.params;
+
   try {
-    const response = await fetch('https://api.thecatapi.com/v1/votes', { headers });
-    const votes = await response.json();
-
-    const newCache = {};
-
-    for (const vote of votes) {
-      const breedId = vote.breed_id; // Check if breed_id exists
-      const subId = vote.sub_id || 'anonymous';
-
-      if (!breedId) continue; // skip votes without breed info
-
-      if (!newCache[breedId]) {
-        newCache[breedId] = {};
-      }
-
-      newCache[breedId][subId] = (newCache[breedId][subId] || 0) + 1;
-    }
-
-    // Update cache and timestamp
-    Object.assign(cache, newCache);
-    cacheTimestamp.lastSync = Date.now();
-
-    console.log('Cache synced successfully:', cache);
-
-    res.json({ status: 'success', message: 'Cache synced successfully.', lastSync: cacheTimestamp.lastSync });
-
+    await db.create({ breedId });
+    res.json({ status: 'success', message: 'Liked breed ${breedId}' });
   } catch (err) {
     res.status(500).json({ status: 'error', message: err.message });
-  }
-});
+    }
+  });
+
+
 
 
 
@@ -124,15 +100,6 @@ app.post('/api/dislike', async (req, res) => {
   } catch (err) {
     res.status(500).json({ status: 'error', message: err.message });
   }
-});
-
-app.post('/api/login', (req, res) => {
-  res.cookie('userId', req.body.message, { path: '/', httpOnly: true })
-     .json({ status: 'success' });
-});
-
-app.post('/api/logout', (req, res) => {
-  res.clearCookie('userId', { path: '/' }).json({ status: 'success' });
 });
 
 app.get('/api/breeds', (req, res) => {
