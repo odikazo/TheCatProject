@@ -25,89 +25,26 @@ const getRandomCat = async () => {
   }
 };
 
-app.get('/', async (req, res) => {
-  try {
-    const [cat] = await getRandomCat();
-    res.render('index.ejs', { cat, userId: req.cookies.userId });
-  } catch (err) { res.status(500).send('Error fetching data'); }
-});
+app.get('/', (req, res) => res.render('index.ejs'));
+app.get('/api/breeds', (req, res) => res.json(cachedBreeds.map(b => ({ name: b.name, id: b.id }))));
 
-app.get('/search', (req, res) => res.render('search.ejs'));
-
-app.post('/api/like', async (req, res) => {
-  const { cat: imageId } = req.body;
-  const subId = req.cookies.userId;
-  if (!imageId || !subId) return res.status(400).json({ error: 'Missing data' });
-
-  try {
-    const vote = await fetch('https://api.thecatapi.com/v1/votes', {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ image_id: imageId, value: 1, sub_id: subId })
-    });
-    const data = await vote.json();
-    res.json({ status: 'success', data });
-  } catch (err) {
-    res.status(500).json({ status: 'error', message: err.message });
-  }
-});
-
-
-
-
-const { Sequelize, DataTypes } = require('sequelize');
-
-// DB connection (can be postgres, sqlite, mysql)
-const sequelize = new Sequelize({
-dialect: 'sqlite',
-storage: './database.sqlite',
-});
-
-const db = require('./database.js')(sequelize, DataTypes);
-
-sequelize.sync().then(() => console.log('Database synced'));
-
-// Middleware
-
-
-
-app.post('/api/likes/:breedId', async (req, res) => {
-  const { breedId } = req.params;
-
-  try {
-    await db.create({ breedId });
-    res.json({ status: 'success', message: 'Liked breed ${breedId}' });
-  } catch (err) {
-    res.status(500).json({ status: 'error', message: err.message });
-    }
-  });
-
-
-
-
-
-
-
-
-app.post('/api/dislike', async (req, res) => {
-  try {
-    const vote = await fetch('https://api.thecatapi.com/v1/votes', {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ image_id: req.body.cat, value: 0, sub_id: req.cookies.userId })
-    });
-    res.json({ status: 'success', data: await vote.json() });
-  } catch (err) {
-    res.status(500).json({ status: 'error', message: err.message });
-  }
-});
-
-app.get('/api/breeds', (req, res) => {
-  res.json(cachedBreeds.map(b => ({ name: b.name, id: b.id })));
-});
 
 app.post('/api/search', async (req, res) => {
-  const breed = cachedBreeds.find(b => b.name.toLowerCase() === req.body.query.toLowerCase());
+  const query = req.body.query?.trim();
+
+  // If no query is provided, return a random cat image with any breed info if available
+  if (!query) {
+    try {
+      const [cat] = await getRandomCat();
+      const breed = cat.breeds && cat.breeds.length > 0 ? cat.breeds[0] : null;
+      return res.json({ breed, image: cat });
+    } catch (err) {
+      return res.status(500).json({ error: 'Failed to fetch random image' });
+    }
+  }
+
+  // Search for the breed
+  const breed = cachedBreeds.find(b => b.name.toLowerCase() === query.toLowerCase());
   if (!breed) return res.status(404).json({ error: 'Breed not found' });
 
   try {
@@ -117,6 +54,8 @@ app.post('/api/search', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch image' });
   }
 });
+
+
 
 cacheBreeds();
 app.listen(80, () => console.log('Server running on port 80'));
