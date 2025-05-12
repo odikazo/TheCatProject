@@ -4,28 +4,30 @@
 
 html { 
     min-height: 100vh; 
+    display: flex;
+     justify-content: center;
 }
 
 body {
   font-family: Arial, sans-serif;
-  display: flex;
-  justify-content: center;
   background: linear-gradient(344deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
+  margin: 10px;
 }
 
 main img {
   width: 100%;
-  height: 100%;
+  max-height: 90vh;
   object-fit: cover;
   border: 2px solid #f0f0f0;
   border-radius: 10px;
 }
 
-button, .leaderboard a {
-  background-color: rgba(0,0,0,0.2);
+button {
+  background-color: white(0,0,0,0.2);
   backdrop-filter: blur(10px);
-  border: 2px solid #f0f0f0;
+  border: 2px solid gray;
   border-radius: 10px;
+  padding: 6px;
 }
 
 input { 
@@ -56,31 +58,10 @@ a {
     color: #e7fec8; 
 }
 
-.lbutton { 
-    background-color: white; 
-}
-
-.leaderboard a {
-  position: absolute;
-  bottom: 10px;
-  transform: translateX(-50%);
-  padding: 3px 9px;
-}
-
-.container {
-  display: grid;
-  gap: 10px;
-  width: 90%;
-  max-width: 1200px;
-  margin-top: 10px;
-}
-
 .container {
     display: grid;
     gap: 10px;
-    width: 90%;
     max-width: 1200px;
-    margin-top: 10px;
 }
 
 .header {
@@ -94,17 +75,6 @@ a {
     border-radius: 10px; 
 }
 
-.leaderboard {
-    grid-area: leaderboard;
-    background-color: rgb(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-    color: white;
-    padding: 15px;
-    border: 2px solid #f0f0f0; 
-    border-radius: 10px;
-    text-align: center;
-}
-
 .search {
     grid-area: search;
     background-color: rgb(0, 0, 0, 0.2);
@@ -114,6 +84,9 @@ a {
     border: 2px solid #f0f0f0; 
     border-radius: 10px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+   
 }
 
 .result {
@@ -181,14 +154,12 @@ a {
 }
 
 .autocomplete-list { 
-    max-height: 200px; 
     overflow-y: auto; 
-    position: absolute; 
     background-color: rgb(10, 10, 10, 0.5);
     backdrop-filter: blur(10px);
     border: 2px solid #f0f0f0; 
-    z-index: 10;
     border-radius: 10px; 
+    flex: 1;
 }
 .autocomplete-list div { 
     padding: 8px; 
@@ -202,4 +173,26 @@ a {
 }
 .cat-result img {
     max-width: 300px; 
+}
+
+
+
+
+
+
+
+
+.search {
+    display: block;
+}
+
+.search div div input {
+    max-width: 100%;
+    padding: 6px;
+    border: 2px solid gray;
+}
+
+.autocomplete-list {
+    max-height: 300px; /* Optional: to prevent it from getting too tall */
+    margin: 20px;
 }

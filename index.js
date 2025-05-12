@@ -26,13 +26,13 @@ const getRandomCat = async () => {
 };
 
 app.get('/', (req, res) => res.render('index.ejs'));
-app.get('/api/breeds', (req, res) => res.json(cachedBreeds.map(b => ({ name: b.name, id: b.id }))));
 
+app.get('/api/breeds', (req, res) => res.json(cachedBreeds.map(b => ({ name: b.name, id: b.id }))));
 
 app.post('/api/search', async (req, res) => {
   const query = req.body.query?.trim();
-
   // If no query is provided, return a random cat image with any breed info if available
+  console.log(req);
   if (!query) {
     try {
       const [cat] = await getRandomCat();
@@ -42,11 +42,9 @@ app.post('/api/search', async (req, res) => {
       return res.status(500).json({ error: 'Failed to fetch random image' });
     }
   }
-
   // Search for the breed
   const breed = cachedBreeds.find(b => b.name.toLowerCase() === query.toLowerCase());
   if (!breed) return res.status(404).json({ error: 'Breed not found' });
-
   try {
     const [image] = await (await fetch(`https://api.thecatapi.com/v1/images/search?breed_ids=${breed.id}&limit=1`, { headers })).json();
     res.json({ breed, image });
@@ -54,8 +52,6 @@ app.post('/api/search', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch image' });
   }
 });
-
-
 
 cacheBreeds();
 app.listen(80, () => console.log('Server running on port 80'));
