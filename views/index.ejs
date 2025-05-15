@@ -1,132 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/style.css">
-    <title>Cat Search</title>
-    <style>
-        /* ---- Layout für Desktops ---- */
-        @media (min-width: 1024px) {
-            .container {
-                display: grid;
-                grid-template-areas:
-                    "header header header header"
-                    "description image image image"
-                    "statistics statistics search search"
-                    "footer footer footer footer";
-                grid-template-columns: 250px 0.5fr 0.5fr 250px;
+    <head>
+        <!-- Set the character set -->
+        <meta charset="UTF-8">
+        <!-- define the viewport to get the screen size -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Load the stylesheet -->
+        <link rel="stylesheet" href="/style.css">
+        <title>Cat Search</title>
+        <style>
+            /* ---- Layout für Desktops ---- */
+            @media (min-width: 1024px) {
+                .container {
+                    display: grid;
+                    grid-template-areas:
+                        "header header header header"
+                        "description image image image"
+                        "statistics statistics search search"
+                        "footer footer footer footer";
+                    grid-template-columns: 250px 0.5fr 0.5fr 250px;
+                }
             }
-        }
-
-        /* ---- Layout für Tablets ---- */
-        @media (min-width: 768px) and (max-width: 1023px) {
-            .container {
-                display: grid;
-                grid-template-areas:
-                    "header header header header"
-                    "description image image image"
-                    "statistics statistics search search"
-                    "footer footer footer footer";
-                grid-template-columns: 250px 0.5fr 0.5fr 250px;
+    
+            /* ---- Layout für Tablets ---- */
+            @media (min-width: 768px) and (max-width: 1023px) {
+                .container {
+                    display: grid;
+                    grid-template-areas:
+                        "header header header header"
+                        "description image image image"
+                        "statistics statistics search search"
+                        "footer footer footer footer";
+                    grid-template-columns: 250px 0.5fr 0.5fr 250px;
+                }
             }
-        }
-
-        /* ---- Layout für Smartphones ---- */
-        @media (max-width: 767px) {
-            .container {
-                display: grid;
-                grid-template-areas:
-                    "header"
-                    "image"
-                    "description"
-                    "search"
-                    "statistics"
-                    "footer";
-                grid-template-columns: auto;
+    
+            /* ---- Layout für Smartphones ---- */
+            @media (max-width: 767px) {
+                .container {
+                    display: grid;
+                    grid-template-areas:
+                        "header"
+                        "image"
+                        "description"
+                        "search"
+                        "statistics"
+                        "footer";
+                    grid-template-columns: auto;
+                }
             }
-        }
-    </style>
-</head>
-<body id="result" class="container">
-    <header class="header" style="position: fixed; top: 10px; right: 10px; bottom: 10px; left: 10px;">
-        <h1>Loading...</h1>
-        <img muted loop preload="auto" autoPlay playsInline src="/loading.gif" style="margin: 25vh 25vw;">
-        <p>Stuck here? Try enabling JavaScript or using a chromium or firefox based browser.</p>
-        <p>Trust issues? Feel free to audit this webpage and server over on <a href="https://github.com/odikazo/TheCatProject.git">GitHub</a>.</p>
-    </header>
-    <div class="search" style="display: none;">
-        <input type="text" id="searchInput" placeholder="Type or select a breed" autocomplete="off">
-        <button onclick="searchCat()">Search</button>
-        <div id="autocompleteList" class="autocomplete-list" style="display: none;"></div>
-    </div>
-</body>
-<script>
-    let breeds = [];
-    const resultDiv = document.getElementById('result');
-
-    async function loading() {
-        resultDiv.innerHTML = `
-            <header class="header" style="position: fixed; top: 10px; right: 10px; bottom: 10px; left: 10px;">
-                <h1>Loading...</h1>
-                <img muted loop preload="auto" autoPlay playsInline src="/loading.gif" style="margin: 25vh 25vw;">
-            </header>
-            <div class="search" style="display: none;">
-                <div>
-                    <div id="searchBar" class="searchBar">
-                        <input type="text" id="searchInput" placeholder="Type or select a breed" autocomplete="off">
-                        <button onclick="searchCat()">Search</button>
-                    </div>
-                    <div id="autocompleteList" class="autocomplete-list" style="display: none;"></div>
-                </div>
-            </div>`;
-        setupAutocomplete();
-    };
-
-    function setupAutocomplete() {
-        const input = document.getElementById('searchInput');
-        const list = document.getElementById('autocompleteList');
-
-        input.addEventListener('input', showAutocomplete);
-
-        // Always show full list initially
-        showAutocomplete();
-
-        function showAutocomplete() {
-            const value = input.value.toLowerCase();
-            const filtered = breeds.filter(b => b.name.toLowerCase().includes(value));
-
-            list.innerHTML = filtered.map(b =>
-                `<div onclick="selectBreed('${b.name}')">${b.name}</div>`
-            ).join('');
-
-            list.style.display = 'block';
-        }
-    }
-
-    function selectBreed(name) {
-        const input = document.getElementById('searchInput');
-        const list = document.getElementById('autocompleteList');
-        input.value = name;
-        list.style.display = 'none';
-    }
-
-    async function searchCat() {
-        try {
-            const input = await document.getElementById('searchInput');
-            loading();
-            const query = input?.value?.trim() || '';
-            const res = await fetch('/api/search', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query })
-            });
-            const cat = await res.json();
-            resultDiv.innerHTML = ` 
-                <header class="header">
-                    <h1>The Cat Project - by Tamino and Tobias</h1>
+        </style>
+    </head>
+    <body id="result" class="container">
+        <header class="header" style="position: fixed; top: 10px; right: 10px; bottom: 10px; left: 10px;">
+            <h1>Loading...</h1>
+            <img muted loop preload="auto" autoPlay playsInline src="/loading.gif" style="margin: 25vh 25vw;">
+            <p>Stuck here? Try enabling JavaScript or using a chromium or firefox based browser.</p>
+            <p>Trust issues? Feel free to audit this webpage and server over on <a href="https://github.com/odikazo/TheCatProject.git">GitHub</a>.</p>
+        </header>
+        <div class="search" style="display: none;">
+            <input type="text" id="searchInput" placeholder="Type or select a breed" autocomplete="off">
+            <button onclick="searchCat()">Search</button>
+            <div id="autocompleteList" class="autocomplete-list" style="display: none;"></div>
+        </div>
+    </body>
+    <script>
+        let breeds = [];
+        const resultDiv = document.getElementById('result');
+    
+        // Loading screen and backend code
+        async function loading() {
+            resultDiv.innerHTML = `
+                <header class="header" style="position: fixed; top: 10px; right: 10px; bottom: 10px; left: 10px;">
+                    <h1>Loading...</h1>
+                    <img muted loop preload="auto" autoPlay playsInline src="/loading.gif" style="margin: 25vh 25vw;">
                 </header>
-                <div class="search">
+                <div class="search" style="display: none;">
                     <div>
                         <div id="searchBar" class="searchBar">
                             <input type="text" id="searchInput" placeholder="Type or select a breed" autocomplete="off">
@@ -134,63 +83,126 @@
                         </div>
                         <div id="autocompleteList" class="autocomplete-list" style="display: none;"></div>
                     </div>
-                </div>
-                <main class="image">
-                    <img src="${cat.image.url}" style="max-width: 100%; height: auto;">
-                </main>
-                ${cat.breed ? `
-                <section class="description">
-                    <h3>Informations about ${cat.breed.name}</h3>
-                    <p>${cat.breed.description}</p>
-                    <ul>
-                        ${cat.breed.alt_names ? `<li>Also known under: <span>${cat.breed.alt_names}</span></li>` : ''}
-                        <li>Life span: <span>${cat.breed.life_span} Years</span></li>
-                        <li>Average weight:<span>${cat.breed.weight.imperial} kg</span></li>
-                        <li>Origin: <span>${cat.breed.origin}</span></li>
-                    </ul>
-                </section>
-                <div class="statistics">
-                    <h3>Stats:</h3>
-                    <ul>
-                        <li>Indoor:<span>${cat.breed.indoor}/5</span></li>
-                        <li>Adaptability:<span>${cat.breed.adaptability}/5</span></li>
-                        <li>Affection level:<span>${cat.breed.affection_level}/5</span></li>
-                        <li>Child friendly:<span>${cat.breed.child_friendly}/5</span></li>
-                        <li>Dog friendly:<span>${cat.breed.dog_friendly}/5</span></li>
-                        <li>Energy level:<span>${cat.breed.energy_level}/5</span></li>
-                        <li>Grooming:<span>${cat.breed.grooming}/5</span></li>
-                        <li>Health issues:<span>${cat.breed.health_issues}/5</span></li>
-                        <li>Intelligence:<span>${cat.breed.intelligence}/5</span></li>
-                        <li>Shedding level:<span>${cat.breed.shedding_level}/5</span></li>
-                        <li>Social needs:<span>${cat.breed.social_needs}/5</span></li>
-                        <li>Stranger friendly:<span>${cat.breed.stranger_friendly}/5</span></li>
-                        <li>Vocalisation:<span>${cat.breed.vocalisation}/5</span></li>
-                        <li>Experimental:<span>${cat.breed.experimental}/5</span></li>
-                        <li>Hairless:<span>${cat.breed.hairless}/5</span></li>
-                        <li>Natural:<span>${cat.breed.natural}/5</span></li>
-                        <li>Rare:<span>${cat.breed.rare}/5</span></li>
-                        <li>Rex:<span>${cat.breed.rex}/5</span></li>
-                        <li>Suppressed Tail:<span>${cat.breed.suppressed_tail}/5</span></li>
-                        <li>Short legs:<span>${cat.breed.short_legs}/5</span></li>
-                        <li>Hypoallergenic:<span>${cat.breed.hypoallergenic}/5</span></li>
-                    </ul>
-                </div>` : ''}
-                <footer class="footer">
-                    <p>This project was made by Tamino and Tobias for school, feel free to reach out on <a target="_blank" href="https://github.com/odikazo/TheCatProject">GitHub</a> or to see the source code.</p>
-                </footer>`;
+                </div>`;
+            // Init Autocomplete
             setupAutocomplete();
-        } catch (err) {
-            resultDiv.textContent = 'Something went wrong';
-            console.error(err);
+        };
+    
+        // Fetch breeds for the autocomplete list
+        function setupAutocomplete() {
+            const input = document.getElementById('searchInput');
+            const list = document.getElementById('autocompleteList');
+    
+            // Always show full list initially
+            showAutocomplete();
+            // Show to autocomplete container 
+            function showAutocomplete() {
+                const value = input.value.toLowerCase();
+                const filtered = breeds.filter(b => b.name.toLowerCase().includes(value));
+    
+                list.innerHTML = filtered.map(b =>
+                    `<div onclick="selectBreed('${b.name}')">${b.name}</div>`
+                ).join('');
+    
+                list.style.display = 'block';
+            }
         }
-    }
-
-    // Get breed list from server and run first search
-    fetch('/api/breeds')
-        .then(r => r.json())
-        .then(b => {
-            breeds = b;
-            searchCat(); // Trigger default random search
-        });
-</script>
+    
+        // autocomplete search
+        function selectBreed(name) {
+            const input = document.getElementById('searchInput');
+            const list = document.getElementById('autocompleteList');
+            input.value = name;
+            list.style.display = 'none';
+        }
+    
+        // Search the cat
+        async function searchCat() {
+            try {
+                // fetch the searched breed
+                const input = await document.getElementById('searchInput'); 
+                loading(); // Show the loading screen
+                // format the query
+                const query = input?.value?.trim() || '';
+                // post the search request to the server
+                const res = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+                // await and jsonfy the result
+                const cat = await res.json();
+                // Load the search result into the HTML
+                resultDiv.innerHTML = ` 
+                    <header class="header">
+                        <h1>The Cat Project - by Tamino and Tobias</h1>
+                    </header>
+                    <div class="search">
+                        <div>
+                            <div id="searchBar" class="searchBar">
+                                <input type="text" id="searchInput" placeholder="Type or select a breed" autocomplete="off">
+                                <button onclick="searchCat()">Search</button>
+                            </div>
+                            <div id="autocompleteList" class="autocomplete-list" style="display: none;"></div>
+                        </div>
+                    </div>
+                    <main class="image">
+                        <img src="${cat.image.url}" style="max-width: 100%; height: auto;">
+                    </main>
+                    ${cat.breed ? `
+                    <section class="description">
+                        <h3>Informations about ${cat.breed.name}</h3>
+                        <p>${cat.breed.description}</p>
+                        <ul>
+                            ${cat.breed.alt_names ? `<li>Also known under: <span>${cat.breed.alt_names}</span></li>` : ''}
+                            <li>Life span: <span>${cat.breed.life_span} Years</span></li>
+                            <li>Average weight:<span>${cat.breed.weight.imperial} kg</span></li>
+                            <li>Origin: <span>${cat.breed.origin}</span></li>
+                        </ul>
+                    </section>
+                    <div class="statistics">
+                        <h3>Stats:</h3>
+                        <ul>
+                            <li>Indoor:<span>${cat.breed.indoor}/5</span></li>
+                            <li>Adaptability:<span>${cat.breed.adaptability}/5</span></li>
+                            <li>Affection level:<span>${cat.breed.affection_level}/5</span></li>
+                            <li>Child friendly:<span>${cat.breed.child_friendly}/5</span></li>
+                            <li>Dog friendly:<span>${cat.breed.dog_friendly}/5</span></li>
+                            <li>Energy level:<span>${cat.breed.energy_level}/5</span></li>
+                            <li>Grooming:<span>${cat.breed.grooming}/5</span></li>
+                            <li>Health issues:<span>${cat.breed.health_issues}/5</span></li>
+                            <li>Intelligence:<span>${cat.breed.intelligence}/5</span></li>
+                            <li>Shedding level:<span>${cat.breed.shedding_level}/5</span></li>
+                            <li>Social needs:<span>${cat.breed.social_needs}/5</span></li>
+                            <li>Stranger friendly:<span>${cat.breed.stranger_friendly}/5</span></li>
+                            <li>Vocalisation:<span>${cat.breed.vocalisation}/5</span></li>
+                            <li>Experimental:<span>${cat.breed.experimental}/5</span></li>
+                            <li>Hairless:<span>${cat.breed.hairless}/5</span></li>
+                            <li>Natural:<span>${cat.breed.natural}/5</span></li>
+                            <li>Rare:<span>${cat.breed.rare}/5</span></li>
+                            <li>Rex:<span>${cat.breed.rex}/5</span></li>
+                            <li>Suppressed Tail:<span>${cat.breed.suppressed_tail}/5</span></li>
+                            <li>Short legs:<span>${cat.breed.short_legs}/5</span></li>
+                            <li>Hypoallergenic:<span>${cat.breed.hypoallergenic}/5</span></li>
+                        </ul>
+                    </div>` : ''}
+                    <footer class="footer">
+                        <p>This project was made by Tamino and Tobias for school, feel free to reach out on <a target="_blank" href="https://github.com/odikazo/TheCatProject">GitHub</a> or to see the source code.</p>
+                    </footer>`;
+                // repair the autocomplete
+                setupAutocomplete();
+            } catch (err) {
+                resultDiv.textContent = 'Something went wrong';
+                console.error(err);
+            }
+        }
+    
+        // Get breed list from server and run first search
+        fetch('/api/breeds')
+            .then(r => r.json())
+            .then(b => {
+                breeds = b;
+                searchCat(); // Trigger default random search
+            });
+    </script>
 </html>

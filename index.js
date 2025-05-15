@@ -1,22 +1,26 @@
+// define important variables
 const express = require('express');
 const app = express();
 let cachedBreeds = [];
-
+// Initialize the app and set the view engine to express JavaScript
 app.set('view engine', 'ejs');
 app.use(express.static('public'), express.json(), require('cookie-parser')());
-app.use(express.json());
-
+app.use(express.json()); // Middleware to parse JSON bodies
+// API Header
 const headers = { "Content-Type": "application/json", "x-api-key": process.env.CatApi };
-
+// Load all breeds into cache
 const cacheBreeds = async () => {
   try {
+    // Fetch all breeds
     const res = await fetch('https://api.thecatapi.com/v1/breeds', { headers });
     cachedBreeds = await res.json();
   } catch (err) { console.error('Error caching breeds:', err); }
 };
 
+// Function to fetch a random cat
 const getRandomCat = async () => {
   try {
+    // Fetch a random cat
     const res = await fetch("https://api.thecatapi.com/v1/images/search?size=med&mime_types=jpg&format=json&has_breeds=true&order=RANDOM&limit=1", { headers });
     return await res.json();
   } catch (err) { 
@@ -25,14 +29,16 @@ const getRandomCat = async () => {
   }
 };
 
+// Index page
 app.get('/', (req, res) => res.render('index.ejs'));
 
+// API to load all breeds
 app.get('/api/breeds', (req, res) => res.json(cachedBreeds.map(b => ({ name: b.name, id: b.id }))));
-
+// API to search or a random cat
 app.post('/api/search', async (req, res) => {
+  // Format the query
   const query = req.body.query?.trim();
-  // If no query is provided, return a random cat image with any breed info if available
-  console.log(req);
+  // Get a random cat if no query
   if (!query) {
     try {
       const [cat] = await getRandomCat();
@@ -53,5 +59,6 @@ app.post('/api/search', async (req, res) => {
   }
 });
 
+// Start the Web server
 cacheBreeds();
 app.listen(80, () => console.log('Server running on port 80'));

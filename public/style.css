@@ -1,19 +1,28 @@
-* { 
-    box-sizing: border-box; 
+/* Reset box-sizing for all elements */
+* {
+  box-sizing: border-box;
 }
 
-html { 
-    min-height: 100vh; 
-    display: flex;
-     justify-content: center;
+/* Center the content vertically and horizontally */
+html {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
 }
 
+/* Basic body styles */
 body {
-  font-family: Arial, sans-serif;
-  background: linear-gradient(344deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
+  font-family: Roboto, Arial, sans-serif;
+  background: linear-gradient(
+    344deg,
+    rgba(2, 0, 36, 1) 0%,
+    rgba(9, 9, 121, 1) 35%,
+    rgba(0, 212, 255, 1) 100%
+  );
   margin: 10px;
 }
 
+/* Responsive image styling inside main */
 main img {
   width: 100%;
   max-height: 90vh;
@@ -22,177 +31,136 @@ main img {
   border-radius: 10px;
 }
 
+/* Styled button */
 button {
-  background-color: white(0,0,0,0.2);
+  background-color: rgba(255, 255, 255, 0.2); /* Fixed incorrect color value */
+  color: white;
   backdrop-filter: blur(10px);
   border: 2px solid gray;
   border-radius: 10px;
   padding: 6px;
 }
 
-input { 
-    border-radius: 10px; border: 2px solid #f0f0f0; 
+/* Input field styling */
+input {
+  border-radius: 10px;
+  border: 2px solid #f0f0f0;
 }
 
+/* Unordered list and list item formatting */
 ul {
   width: fit-content;
   margin: auto;
   text-align: left;
   padding: 0;
 }
-
 ul li {
   display: flex;
   justify-content: space-between;
   max-width: 400px;
   margin-bottom: 8px;
 }
-
 ul li span {
   text-align: right;
   color: #aed5ff;
   margin-left: 6px;
 }
 
+/* link styling */
 a {
-    color: #e7fec8; 
+  color: #e7fec8;
 }
 
+/* General layout container */
 .container {
-    display: grid;
-    gap: 10px;
-    max-width: 1200px;
+  display: grid;
+  gap: 10px;
+  max-width: 1200px;
 }
 
+/* Header section */
 .header {
-    grid-area: header;
-    background-color: rgb(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-    color: white;
-    text-align: center;
-    padding: 15px;
-    border: 2px solid #f0f0f0; 
-    border-radius: 10px; 
+  grid-area: header;
+  background-color: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  color: white;
+  text-align: center;
+  padding: 15px;
+  border: 2px solid #f0f0f0;
+  border-radius: 10px;
 }
 
+/* Search section */
 .search {
-    grid-area: search;
-    background-color: rgb(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-    color: white;
-    padding: 15px;
-    border: 2px solid #f0f0f0; 
-    border-radius: 10px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-   
+  grid-area: search;
+  background-color: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  color: white;
+  padding: 15px;
+  border: 2px solid #f0f0f0;
+  border-radius: 10px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
 }
 
+/* Other grid areas (result, image, etc.) */
 .result {
-    grid-area: result;
+  grid-area: result;
 }
-
 .image {
-    grid-area: image;
+  grid-area: image;
 }
-
-.description {
-    grid-area: description;
-    background-color: rgb(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-    color: white;
-    padding: 15px;
-    border: 2px solid #f0f0f0; 
-    border-radius: 10px; 
-    text-align: center;
-}
-
-.buttons {
-    grid-area: buttons;
-    background-color: rgb(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-    color: white;
-    text-align: center;
-    align-content: center;
-    padding: 15px;
-    border: 2px solid #f0f0f0; 
-    border-radius: 10px; 
-}
-
-.statistics {
-    grid-area: statistics;
-    background-color: rgb(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-    color: white;
-    text-align: center;
-    padding: 15px;
-    border: 2px solid #f0f0f0; 
-    border-radius: 10px; 
-}
-
-.others {
-    grid-area: others;
-    background-color: rgb(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-    color: white;
-    text-align: center;
-    padding: 15px;
-    border: 2px solid #f0f0f0; 
-    border-radius: 10px; 
-}
-
+.description,
+.statistics,
 .footer {
-    grid-area: footer;
-    background-color: rgb(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-    color: white;
-    text-align: center;
-    padding: 15px;
-    border: 2px solid #f0f0f0; 
-    border-radius: 10px; 
+  background-color: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  color: white;
+  text-align: center;
+  padding: 15px;
+  border: 2px solid #f0f0f0;
+  border-radius: 10px;
 }
 
-.autocomplete-list { 
-    overflow-y: auto; 
-    background-color: rgb(10, 10, 10, 0.5);
-    backdrop-filter: blur(10px);
-    border: 2px solid #f0f0f0; 
-    border-radius: 10px; 
-    flex: 1;
+/* Assign specific grid areas */
+.description { grid-area: description; }
+.statistics { grid-area: statistics; }
+.footer { grid-area: footer; }
+
+/* Autocomplete dropdown list */
+.autocomplete-list {
+  overflow-y: auto;
+  background-color: rgba(10, 10, 10, 0.5);
+  backdrop-filter: blur(10px);
+  border: 2px solid #f0f0f0;
+  border-radius: 10px;
+  flex: 1;
+  max-height: 300px; /* Prevent overflow */
+  margin: 20px;
 }
-.autocomplete-list div { 
-    padding: 8px; 
-    cursor: pointer; 
+.autocomplete-list div {
+  padding: 8px;
+  cursor: pointer;
 }
-.autocomplete-list div:hover { 
-    background-color: #f0f0f0; 
+.autocomplete-list div:hover {
+  background-color: rgb(65, 160, 86, 0.7);
 }
-.cat-result { 
-    margin-top: 20px; 
+
+/* Cat result image styling */
+.cat-result {
+  margin-top: 20px;
 }
 .cat-result img {
-    max-width: 300px; 
+  max-width: 300px;
 }
 
-
-
-
-
-
-
-
+/* Additional search input layout */
 .search {
-    display: block;
+  display: block;
 }
-
 .search div div input {
-    max-width: 100%;
-    padding: 6px;
-    border: 2px solid gray;
-}
-
-.autocomplete-list {
-    max-height: 300px; /* Optional: to prevent it from getting too tall */
-    margin: 20px;
+  max-width: 100%;
+  padding: 6px;
+  border: 2px solid gray;
 }
